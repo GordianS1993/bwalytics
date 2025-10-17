@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BWA Upload - Test Version</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+        
+        .upload-zone {
+            border: 3px dashed #2196F3;
+            border-radius: 16px;
+            padding: 60px 40px;
+            text-align: center;
+            background: #f8faff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-zone:hover {
+            background: #e3f2fd;
+            border-color: #1976d2;
+        }
+        
+        .debug-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #f59e0b;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            z-index: 999999;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .debug-panel button {
+            display: block;
+            margin: 5px 0;
+            padding: 8px 12px;
+            background: white;
+            color: black;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            width: 100%;
+        }
+        
+        .debug-panel button:hover {
+            background: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 BWA Upload - Test Version</h1>
+        
+        <div class="upload-zone" id="uploadZone" onclick="testClickHandler()">
+            <div style="font-size: 48px; margin-bottom: 20px;">📄</div>
+            <h2>BWA-Datei hochladen</h2>
+            <p>Klicken Sie hier oder ziehen Sie eine PDF-Datei hierher</p>
+            <input type="file" id="fileInput" accept=".pdf" style="display: none;">
+        </div>
+        
+        <div id="status" style="margin-top: 20px; padding: 20px; background: #f5f5f5; border-radius: 8px;">
+            <strong>Status:</strong> Warte auf Datei-Upload...
+        </div>
+    </div>
+    
+    <!-- Debug Panel -->
+    <div class="debug-panel">
+        <div><strong>🐛 DEBUG PANEL</strong></div>
+        <button onclick="testJavaScript()">Test JavaScript</button>
+        <button onclick="testFileInput()">Test File Input</button>
+        <button onclick="testUploadSimulation()">Test Upload</button>
+        <button onclick="showConsole()">Zeige Console</button>
+    </div>
+
+    <script>
+        // Globale Variablen
+        let uploadZone, fileInput, statusDiv;
+        
+        // SOFORTIGER TEST
+        console.log('🎯 TEST SCRIPT GELADEN!');
+        alert('🎯 JavaScript funktioniert! Debug-Panel rechts oben verwenden.');
+        
+        // DOM Ready
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ DOM Content Loaded');
+            
+            // Elemente finden
+            uploadZone = document.getElementById('uploadZone');
+            fileInput = document.getElementById('fileInput');
+            statusDiv = document.getElementById('status');
+            
+            console.log('📋 Elemente gefunden:', {
+                uploadZone: !!uploadZone,
+                fileInput: !!fileInput,
+                statusDiv: !!statusDiv
+            });
+            
+            // File Input Event
+            if (fileInput) {
+                fileInput.addEventListener('change', function(event) {
+                    console.log('🎯 FILE INPUT CHANGE!');
+                    updateStatus('📄 Datei ausgewählt: ' + event.target.files[0]?.name);
+                    
+                    const file = event.target.files[0];
+                    if (file) {
+                        handleFileUpload(file);
+                    }
+                });
+            }
+            
+            updateStatus('✅ System bereit - JavaScript funktioniert!');
+        });
+        
+        // Test-Funktionen
+        function testJavaScript() {
+            console.log('🔥 JavaScript Test erfolgreich!');
+            alert('✅ JavaScript funktioniert perfekt!');
+            updateStatus('✅ JavaScript Test erfolgreich!');
+        }
+        
+        function testFileInput() {
+            console.log('🔥 File Input Test');
+            if (fileInput) {
+                console.log('✅ File Input gefunden, öffne Dialog...');
+                updateStatus('📂 Öffne Datei-Dialog...');
+                fileInput.click();
+            } else {
+                console.error('❌ File Input nicht gefunden!');
+                alert('❌ File Input Element fehlt!');
+                updateStatus('❌ File Input nicht gefunden!');
+            }
+        }
+        
+        function testUploadSimulation() {
+            console.log('🔥 Upload Simulation Test');
+            updateStatus('🎬 Simuliere Upload...');
+            
+            // Fake File erstellen
+            const fakeFile = new File(['BWA Test Content'], 'test-bwa.pdf', { 
+                type: 'application/pdf' 
+            });
+            
+            handleFileUpload(fakeFile);
+        }
+        
+        function testClickHandler() {
+            console.log('🔥 Upload Zone geklickt!');
+            updateStatus('🖱️ Upload Zone geklickt - öffne Datei-Dialog...');
+            if (fileInput) {
+                fileInput.click();
+            }
+        }
+        
+        function showConsole() {
+            alert('Öffnen Sie die Console mit F12 → Console Tab');
+            console.log('🔍 Console-Logs sind hier sichtbar!');
+        }
+        
+        function handleFileUpload(file) {
+            console.log('🚀 Handle File Upload:', file.name);
+            updateStatus(`🚀 Verarbeite Datei: ${file.name} (${file.size} bytes)`);
+            
+            // Einfache Validierung
+            if (file.type !== 'application/pdf') {
+                updateStatus('❌ Fehler: Nur PDF-Dateien erlaubt!');
+                return;
+            }
+            
+            // Erfolg simulieren
+            setTimeout(() => {
+                updateStatus(`✅ Upload erfolgreich! Datei: ${file.name}`);
+                console.log('✅ Upload-Simulation abgeschlossen');
+            }, 2000);
+        }
+        
+        function updateStatus(message) {
+            console.log('📝 Status Update:', message);
+            if (statusDiv) {
+                statusDiv.innerHTML = `<strong>Status:</strong> ${message}`;
+            }
+        }
+        
+        console.log('✅ Alle Funktionen definiert');
+    </script>
+</body>
+</html>

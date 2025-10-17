@@ -1,0 +1,219 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Benutzer-Management
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  firstName String?
+  lastName  String?
+  company   String?
+  industry  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Beziehungen
+  bwaUploads     BWAUpload[]
+  scoringHistory ScoringHistory[]
+  recommendations Recommendation[]
+  settings       UserSettings?
+
+  @@map("users")
+}
+
+// Benutzer-Einstellungen
+model UserSettings {
+  id                    String  @id @default(cuid())
+  userId                String  @unique
+  emailNotifications    Boolean @default(true)
+  dashboardRefreshRate  Int     @default(300) // Sekunden
+  preferredCurrency     String  @default("EUR")
+  scoreThresholds       Json?   // Schwellenwerte für Scoring-Alerts
+  industryBenchmarking  Boolean @default(true)
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
+}
+
+// BWA-Upload und Verarbeitung
+model BWAUpload {
+  id           String   @id @default(cuid())
+  userId       String
+  filename     String
+  originalName String
+  filePath     String
+  fileSize     Int
+  mimeType     String   @default("application/pdf")
+  uploadedAt   DateTime @default(now())
+  processedAt  DateTime?
+  status       String   @default("uploaded") // uploaded, processing, processed, failed
+  
+  // Extrahierte Daten
+  extractedText String?
+  extractedData Json?   // Rohe Extraktionsdaten
+  
+  // Parsing-Ergebnisse
+  period       String?
+  revenue      Float?
+  costs        Float?
+  profit       Float?
+  cashFlow     Float?
+  assets       Float?
+  liabilities  Float?
+  equity       Float?
+  
+  // Metadaten
+  confidence   Float?   // Parsing-Confidence (0-1)
+  parsingNotes String?  // Notizen/Warnings beim Parsing
+  
+  // Beziehungen
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kpis        KPI[]
+  scoringHistory ScoringHistory[]
+
+  @@map("bwa_uploads")
+}
+
+// Key Performance Indicators
+model KPI {
+  id          String   @id @default(cuid())
+  bwaUploadId String
+  name        String   // z.B. "profitMargin", "costRatio", "revenueGrowth"
+  value       Float
+  unit        String?  // %, EUR, etc.
+  category    String   // liquidity, profitability, efficiency, growth
+  calculatedAt DateTime @default(now())
+  
+  bwaUpload BWAUpload @relation(fields: [bwaUploadId], references: [id], onDelete: Cascade)
+
+  @@map("kpis")
+}
+
+// Scoring-Historie
+model ScoringHistory {
+  id          String   @id @default(cuid())
+  userId      String
+  bwaUploadId String?  // Optional: Bezug zur BWA
+  period      String   // z.B. "2024-10" für Oktober 2024
+  
+  // Scoring-Werte
+  overallScore      Int
+  liquidityScore    Int
+  profitabilityScore Int
+  stabilityScore    Int
+  growthScore       Int
+  efficiencyScore   Int
+  
+  // Zusätzliche Informationen
+  grade            String  // A+, A, B, C, D, F
+  healthStatus     String  // excellent, good, average, concerning, critical
+  confidence       Float   // 0-1
+  
+  // Metadaten
+  scoringVersion   String  @default("1.0") // Version des Scoring-Algorithmus
+  calculatedAt     DateTime @default(now())
+  
+  // Beziehungen
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bwaUpload BWAUpload? @relation(fields: [bwaUploadId], references: [id], onDelete: SetNull)
+
+  @@map("scoring_history")
+}
+
+// KI-Empfehlungen
+model Recommendation {
+  id          String   @id @default(cuid())
+  userId      String
+  category    String   // growth, finance, efficiency, strategy
+  priority    String   // high, medium, low
+  title       String
+  description String
+  
+  // Empfehlungsdetails
+  actions        Json?    // Array von konkreten Handlungsschritten
+  expectedImpact String?
+  timeframe      String?
+  investment     String?  // low, medium, high
+  
+  // Status
+  status      String   @default("active") // active, completed, dismissed, archived
+  confidence  Float?   // 0-1
+  
+  // Feedback
+  userRating    Int?     // 1-5 Sterne
+  userFeedback  String?
+  implemented   Boolean  @default(false)
+  
+  // Metadaten
+  aiModel       String?  // GPT-4, Custom, etc.
+  generatedAt   DateTime @default(now())
+  completedAt   DateTime?
+  dismissedAt   DateTime?
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("recommendations")
+}
+
+// Branchenbenchmarks (für Vergleiche)
+model IndustryBenchmark {
+  id               String @id @default(cuid())
+  industry         String
+  companySize      String // small, medium, large
+  metric           String // profitMargin, costRatio, etc.
+  
+  // Benchmark-Werte
+  average          Float
+  median           Float
+  top25Percentile  Float
+  top10Percentile  Float
+  
+  // Metadaten
+  sampleSize       Int?
+  dataSource       String?
+  lastUpdated      DateTime @default(now())
+  
+  @@unique([industry, companySize, metric])
+  @@map("industry_benchmarks")
+}
+
+// System-Logs für Monitoring
+model SystemLog {
+  id        String   @id @default(cuid())
+  level     String   // info, warn, error
+  category  String   // pdf_parsing, scoring, recommendations, etc.
+  message   String
+  details   Json?
+  userId    String?
+  createdAt DateTime @default(now())
+
+  @@map("system_logs")
+}
+
+// Automatisierte Tasks/Jobs
+model ScheduledTask {
+  id          String   @id @default(cuid())
+  name        String
+  type        String   // score_calculation, benchmark_update, etc.
+  schedule    String   // Cron-Format
+  lastRun     DateTime?
+  nextRun     DateTime?
+  status      String   @default("active") // active, paused, disabled
+  config      Json?    // Task-spezifische Konfiguration
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("scheduled_tasks")
+}

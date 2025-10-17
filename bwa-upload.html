@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BWA Upload | BWA-Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+        
+        .sidebar-header {
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+        }
+        
+        .sidebar-header .icon {
+            font-size: 48px;
+            color: #4fc3f7;
+            margin-bottom: 8px;
+        }
+        
+        .sidebar-header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .sidebar-header .subtitle {
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .user-profile {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #4fc3f7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .user-info h3 {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .user-info p {
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .nav-menu {
+            padding: 16px;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .nav-item:hover {
+            background: rgba(79, 195, 247, 0.1);
+        }
+        
+        .nav-item.active {
+            background: #4fc3f7;
+            color: #1a1a2e;
+        }
+        
+        .nav-item .icon {
+            margin-right: 12px;
+            font-size: 20px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 24px;
+        }
+        
+        .page-header {
+            margin-bottom: 32px;
+        }
+        
+        .page-header h1 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .page-header p {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        /* Upload Area */
+        .upload-card {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 32px;
+        }
+        
+        .upload-zone {
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 48px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .upload-zone:hover {
+            border-color: #4fc3f7;
+            background-color: #f8fafc;
+        }
+        
+        .upload-zone.dragover {
+            border-color: #4fc3f7;
+            background-color: #eff6ff;
+        }
+        
+        .upload-icon {
+            font-size: 64px;
+            color: #4fc3f7;
+            margin-bottom: 16px;
+        }
+        
+        .upload-zone h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .upload-zone p {
+            color: #666;
+            margin-bottom: 16px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 16px;
+        }
+        
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1565c0;
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+        
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        
+        .file-info {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 8px;
+        }
+        
+        /* Upload Progress */
+        .upload-progress {
+            margin-top: 24px;
+            padding: 16px;
+            background: #f0f9ff;
+            border-radius: 8px;
+            border-left: 4px solid #0ea5e9;
+            display: none;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e7ff;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #0ea5e9;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        
+        /* Upload History */
+        .history-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .history-table th {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 2px solid #f3f4f6;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .history-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f3f4f6;
+            vertical-align: middle;
+        }
+        
+        .history-table tr:hover {
+            background-color: #f9fafb;
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-processed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-processing {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-failed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+        }
+        
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #22c55e;
+        }
+        
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .history-table {
+                font-size: 14px;
+            }
+            
+            .upload-zone {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="icon">🏢</div>
+                <h1>BWA Dashboard</h1>
+                <p class="subtitle">Kleinunternehmer</p>
+            </div>
+            
+            <div class="user-profile">
+                <div class="avatar">GS</div>
+                <div class="user-info">
+                    <h3>Gordian Schmitz</h3>
+                    <p>Unternehmer</p>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="demo.html" class="nav-item">
+                    <span class="icon">📊</span>
+                    Dashboard
+                </a>
+                <a href="bwa-upload.html" class="nav-item active">
+                    <span class="icon">☁️</span>
+                    BWA Upload
+                </a>
+                <a href="scoring.html" class="nav-item">
+                    <span class="icon">📈</span>
+                    Scoring
+                </a>
+                <a href="recommendations.html" class="nav-item">
+                    <span class="icon">💡</span>
+                    Empfehlungen
+                </a>
+                <a href="analytics.html" class="nav-item">
+                    <span class="icon">📊</span>
+                    Analytics
+                </a>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-header">
+                <h1>BWA Upload</h1>
+                <p>Laden Sie Ihre Betriebswirtschaftliche Auswertung (BWA) hoch für die automatische Analyse.</p>
+            </div>
+            
+            <!-- Upload Area -->
+            <div class="upload-card">
+                <div class="upload-zone" id="uploadZone">
+                    <div class="upload-icon">☁️</div>
+                    <h3>PDF-Datei hier hinziehen oder klicken</h3>
+                    <p>Unterstützte Formate: PDF (max. 50MB)</p>
+                    <input type="file" id="fileInput" accept=".pdf" style="display: none;">
+                </div>
+                
+                <!-- DEBUG BUTTON AUSSERHALB -->
+                <div style="text-align: center; margin: 20px 0;">
+                    <button onclick="testFileInput()" style="padding: 12px 24px; background: #f59e0b; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 16px;">
+                        🧪 Test Upload simulieren
+                    </button>
+                    <button onclick="checkElements()" style="margin-left: 10px; padding: 12px 24px; background: #22c55e; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 16px;">
+                        🔍 Elemente prüfen
+                    </button>
+                </div>                <!-- Upload Progress -->
+                <div class="upload-progress" id="uploadProgress">
+                    <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                        <span style="margin-right: 8px;">📤</span>
+                        <strong>BWA wird hochgeladen und verarbeitet...</strong>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div id="progressText">0% - Vorbereitung...</div>
+                </div>
+                
+                <!-- Success/Error Messages -->
+                <div id="alertContainer"></div>
+            </div>
+            
+            <!-- Upload History -->
+            <div class="history-card">
+                <div class="history-header">
+                    <h2>📄 Upload-Historie</h2>
+                    <button class="btn btn-secondary btn-small">
+                        🔄 Aktualisieren
+                    </button>
+                </div>
+                
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Datei</th>
+                            <th>Status</th>
+                            <th>Hochgeladen</th>
+                            <th>Umsatz</th>
+                            <th>Kosten</th>
+                            <th>Gewinn</th>
+                            <th>Marge</th>
+                            <th>Aktionen</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <tr>
+                            <td>
+                                <strong>BWA Oktober 2024.pdf</strong><br>
+                                <small style="color: #666;">2.3 MB</small>
+                            </td>
+                            <td>
+                                <span class="status-badge status-processed">✅ Verarbeitet</span>
+                            </td>
+                            <td>
+                                14.10.2024<br>
+                                <small style="color: #666;">10:30</small>
+                            </td>
+                            <td><strong>45.000 €</strong></td>
+                            <td>32.000 €</td>
+                            <td style="color: #22c55e;"><strong>13.000 €</strong></td>
+                            <td>
+                                <span class="status-badge status-processed">28.9%</span>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn btn-secondary btn-small">👁️ Details</button>
+                                    <button class="btn btn-secondary btn-small">🗑️ Löschen</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>BWA September 2024.pdf</strong><br>
+                                <small style="color: #666;">2.1 MB</small>
+                            </td>
+                            <td>
+                                <span class="status-badge status-processed">✅ Verarbeitet</span>
+                            </td>
+                            <td>
+                                15.09.2024<br>
+                                <small style="color: #666;">14:20</small>
+                            </td>
+                            <td><strong>42.000 €</strong></td>
+                            <td>30.000 €</td>
+                            <td style="color: #22c55e;"><strong>12.000 €</strong></td>
+                            <td>
+                                <span class="status-badge status-processed">28.6%</span>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn btn-secondary btn-small">👁️ Details</button>
+                                    <button class="btn btn-secondary btn-small">🗑️ Löschen</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>BWA August 2024.pdf</strong><br>
+                                <small style="color: #666;">2.0 MB</small>
+                            </td>
+                            <td>
+                                <span class="status-badge status-processing">🔄 Verarbeitung</span>
+                            </td>
+                            <td>
+                                12.09.2024<br>
+                                <small style="color: #666;">09:15</small>
+                            </td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn btn-secondary btn-small" disabled>⏳ Warten...</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        console.log('🚀 BWA Upload Script wird geladen...');
+        
+        // Upload Zone Drag & Drop
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const uploadProgress = document.getElementById('uploadProgress');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const alertContainer = document.getElementById('alertContainer');
+        
+        console.log('📋 Elemente geladen:', {
+            uploadZone: !!uploadZone,
+            fileInput: !!fileInput,
+            uploadProgress: !!uploadProgress,
+            progressFill: !!progressFill,
+            progressText: !!progressText
+        });
+        
+        // Stelle sicher, dass alle Elemente existieren
+        if (!uploadZone || !fileInput || !uploadProgress || !progressFill || !progressText) {
+            console.error('❌ Kritische Elemente fehlen!');
+            alert('❌ Upload-Elemente nicht gefunden! Seite wird neu geladen...');
+            window.location.reload();
+            return;
+        }
+        
+        // Drag and Drop Events
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            console.log('🔄 Dragover');
+            uploadZone.classList.add('dragover');
+        });
+        
+        uploadZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            console.log('👋 Dragleave');
+            uploadZone.classList.remove('dragover');
+        });
+        
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            console.log('📤 Drop-Event:', e.dataTransfer.files);
+            uploadZone.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileUpload(files[0]);
+            }
+        });
+        
+        // File Input Change - DIREKTE VERBINDUNG
+        fileInput.addEventListener('change', function(event) {
+            console.log('� FILE INPUT CHANGE EVENT TRIGGERED!');
+            console.log('📁 Selected files:', event.target.files);
+            console.log('📁 File count:', event.target.files.length);
+            
+            if (event.target.files && event.target.files.length > 0) {
+                const selectedFile = event.target.files[0];
+                console.log('✅ File selected:', {
+                    name: selectedFile.name,
+                    size: selectedFile.size,
+                    type: selectedFile.type
+                });
+                
+                // SOFORT SICHTBARE REAKTION
+                alert('📁 Datei ausgewählt: ' + selectedFile.name + '\nGröße: ' + (selectedFile.size/(1024*1024)).toFixed(1) + 'MB\nTyp: ' + selectedFile.type + '\n\nUpload wird gestartet...');
+                
+                // Upload starten
+                handleFileUpload(selectedFile);
+            } else {
+                console.log('❌ Keine Datei ausgewählt');
+                alert('❌ Keine Datei ausgewählt!');
+            }
+        });
+        
+        // ZUSÄTZLICHER BACKUP EVENT LISTENER
+        fileInput.onchange = function(event) {
+            console.log('🔥 BACKUP onchange EVENT!');
+            if (this.files && this.files.length > 0) {
+                handleFileUpload(this.files[0]);
+            }
+        };
+        
+        // TEST FUNKTION
+        function testFileInput() {
+            console.log('🧪 Test function called');
+            alert('🧪 Test-Upload wird gestartet...');
+            
+            // Erstelle eine Mock-Datei für den Test
+            const mockFile = new File(['test content'], 'test-bwa.pdf', {
+                type: 'application/pdf',
+                lastModified: Date.now()
+            });
+            
+            console.log('📁 Mock file created:', mockFile);
+            handleFileUpload(mockFile);
+        }
+        
+        // ELEMENT CHECK FUNKTION
+        function checkElements() {
+            const elements = {
+                uploadZone: !!uploadZone,
+                fileInput: !!fileInput,
+                uploadProgress: !!uploadProgress,
+                progressFill: !!progressFill,
+                progressText: !!progressText,
+                alertContainer: !!alertContainer
+            };
+            
+            const message = '🔍 Element-Check:\n\n' + 
+                Object.entries(elements).map(([name, exists]) => 
+                    `${exists ? '✅' : '❌'} ${name}: ${exists ? 'Gefunden' : 'FEHLT'}`
+                ).join('\n') +
+                '\n\nFile Input Listeners:\n' +
+                `📡 addEventListener: ${!!fileInput.addEventListener}\n` +
+                `📡 onchange: ${!!fileInput.onchange}`;
+            
+            alert(message);
+            console.log('🔍 Element Check:', elements);
+        }
+        
+        // Click to upload - mit besserer Event-Behandlung
+        uploadZone.addEventListener('click', (event) => {
+            console.log('🖱️ Upload-Zone geklickt');
+            
+            // Verhindere Click wenn Progress läuft oder wenn es ein Button ist
+            if (uploadProgress.style.display === 'block') {
+                console.log('⏸️ Upload läuft bereits');
+                return;
+            }
+            
+            if (event.target.tagName === 'BUTTON') {
+                console.log('🔘 Button geklickt, ignoriere Upload-Zone Click');
+                return;
+            }
+            
+            console.log('📁 Öffne Datei-Dialog...');
+            fileInput.click();
+        });
+        
+        // Handle File Upload
+        function handleFileUpload(file) {
+            console.log('📤 handleFileUpload aufgerufen mit:', file);
+            
+            if (!file) {
+                console.error('❌ Keine Datei erhalten');
+                return;
+            }
+            
+            // Validierung
+            console.log('🔍 Datei-Validierung:', {
+                name: file.name,
+                type: file.type,
+                size: file.size
+            });
+            
+            if (file.type !== 'application/pdf') {
+                console.warn('⚠️ Falscher Dateityp:', file.type);
+                showAlert('⚠️ Nur PDF-Dateien sind erlaubt!\n\nAusgewählt: ' + file.type, 'error');
+                return;
+            }
+            
+            if (file.size > 50 * 1024 * 1024) {
+                console.warn('⚠️ Datei zu groß:', file.size);
+                showAlert('⚠️ Datei zu groß! Maximum 50MB erlaubt.\n\nGröße: ' + (file.size / (1024 * 1024)).toFixed(1) + 'MB', 'error');
+                return;
+            }
+            
+            console.log('✅ Validierung erfolgreich, starte Upload...');
+            
+            // UI anpassen
+            if (uploadProgress) {
+                uploadProgress.style.display = 'block';
+                console.log('📊 Progress angezeigt');
+            }
+            if (uploadZone) {
+                uploadZone.style.display = 'none';
+                console.log('📤 Upload-Zone versteckt');
+            }
+            
+            // Reset progress
+            if (progressFill) {
+                progressFill.style.width = '0%';
+            }
+            if (progressText) {
+                progressText.textContent = 'PDF wird gelesen...';
+            }
+            
+            // Upload starten
+            setTimeout(() => {
+                simulateUpload(file);
+            }, 100);
+        }
+        
+        // Simulate Upload Process
+        function simulateUpload(file) {
+            console.log('🚀 simulateUpload gestartet für:', file.name);
+            
+            if (!progressFill || !progressText) {
+                console.error('❌ Progress-Elemente nicht gefunden');
+                showAlert('❌ Upload-Fehler: Interface-Elemente nicht gefunden', 'error');
+                return;
+            }
+            
+            let progress = 0;
+            const phases = [
+                { max: 20, text: 'PDF wird hochgeladen...' },
+                { max: 40, text: 'Datei wird validiert...' },
+                { max: 65, text: 'BWA-Struktur wird erkannt...' },
+                { max: 85, text: 'Kennzahlen werden extrahiert...' },
+                { max: 100, text: 'Daten werden gespeichert...' }
+            ];
+            
+            let currentPhase = 0;
+            
+            const interval = setInterval(() => {
+                const targetProgress = phases[currentPhase].max;
+                const increment = Math.random() * 4 + 2;
+                
+                progress += increment;
+                
+                if (progress >= targetProgress && currentPhase < phases.length - 1) {
+                    currentPhase++;
+                }
+                
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    
+                    console.log('✅ Upload abgeschlossen');
+                    
+                    progressFill.style.width = '100%';
+                    progressText.textContent = '100% - BWA erfolgreich verarbeitet!';
+                    
+                    setTimeout(() => {
+                        // Hide progress and show success
+                        if (uploadProgress) uploadProgress.style.display = 'none';
+                        if (uploadZone) uploadZone.style.display = 'block';
+                        
+                        // Generate realistic BWA data
+                        const mockData = generateMockBWAData(file.name);
+                        
+                        showAlert(
+                            `✅ BWA "${file.name}" wurde erfolgreich verarbeitet!\n\n` +
+                            `📊 Erkannte Kennzahlen:\n` +
+                            `• Umsatz: ${mockData.revenue.toLocaleString()}€\n` +
+                            `• Kosten: ${mockData.costs.toLocaleString()}€\n` +
+                            `• Gewinn: ${mockData.profit.toLocaleString()}€\n` +
+                            `• Gewinnmarge: ${mockData.margin}%\n\n` +
+                            `Die Daten sind jetzt in Ihrem Dashboard verfügbar.`, 
+                            'success'
+                        );
+                        
+                        // Add to history table
+                        addToHistory(file);
+                        
+                        // Reset file input
+                        if (fileInput) fileInput.value = '';
+                        
+                        console.log('🎉 Upload komplett abgeschlossen');
+                    }, 1500);
+                    
+                    return;
+                }
+                
+                if (currentPhase < phases.length) {
+                    progressText.textContent = `${Math.round(progress)}% - ${phases[currentPhase].text}`;
+                }
+                progressFill.style.width = progress + '%';
+                
+            }, 200);
+        }
+        
+        // Generate realistic BWA mock data
+        function generateMockBWAData(fileName) {
+            // Base values with some variation
+            const baseRevenue = 45000 + Math.random() * 15000;
+            const costRatio = 0.65 + Math.random() * 0.15; // 65-80% costs
+            const costs = baseRevenue * costRatio;
+            const profit = baseRevenue - costs;
+            const margin = (profit / baseRevenue * 100);
+            
+            return {
+                revenue: Math.round(baseRevenue),
+                costs: Math.round(costs),
+                profit: Math.round(profit),
+                margin: margin.toFixed(1)
+            };
+        }
+        
+        // Show Alert Message
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `
+                <span style="margin-right: 8px;">${type === 'success' ? '✅' : '❌'}</span>
+                ${message}
+                <button onclick="this.parentElement.remove()" style="margin-left: auto; background: none; border: none; font-size: 18px; cursor: pointer;">&times;</button>
+            `;
+            alertDiv.style.display = 'flex';
+            alertDiv.style.alignItems = 'center';
+            
+            alertContainer.appendChild(alertDiv);
+            
+            // Auto-remove after 10 seconds
+            setTimeout(() => {
+                if (alertDiv.parentElement) {
+                    alertDiv.remove();
+                }
+            }, 10000);
+        }
+        
+        // Add to History Table
+        function addToHistory(file) {
+            const tbody = document.getElementById('historyTableBody');
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('de-DE');
+            const timeStr = now.toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'});
+            
+            // Use the same mock data generator for consistency
+            const mockData = generateMockBWAData(file.name);
+            
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>
+                    <strong>${file.name}</strong><br>
+                    <small style="color: #666;">${(file.size / (1024 * 1024)).toFixed(1)} MB</small>
+                </td>
+                <td>
+                    <span class="status-badge status-processed">✅ Verarbeitet</span>
+                </td>
+                <td>
+                    ${dateStr}<br>
+                    <small style="color: #666;">${timeStr}</small>
+                </td>
+                <td><strong>${mockData.revenue.toLocaleString()} €</strong></td>
+                <td>${mockData.costs.toLocaleString()} €</td>
+                <td style="color: #22c55e;"><strong>${mockData.profit.toLocaleString()} €</strong></td>
+                <td>
+                    <span class="status-badge status-processed">${mockData.margin}%</span>
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary btn-small" onclick="viewDetails('${file.name}')">👁️ Details</button>
+                        <button class="btn btn-secondary btn-small" onclick="deleteUpload('${file.name}')">🗑️ Löschen</button>
+                    </div>
+                </td>
+            `;
+            
+            // Add to top of table
+            tbody.insertBefore(newRow, tbody.firstChild);
+            
+            // Add animation
+            newRow.style.opacity = '0';
+            newRow.style.transform = 'translateY(-10px)';
+            setTimeout(() => {
+                newRow.style.transition = 'all 0.3s ease';
+                newRow.style.opacity = '1';
+                newRow.style.transform = 'translateY(0)';
+            }, 100);
+        }
+        
+        // View details function
+        function viewDetails(fileName) {
+            alert(`📋 Details für ${fileName}\n\nDetaillierte BWA-Analyse würde hier angezeigt werden:\n• Umsatzverteilung nach Kategorien\n• Kostenaufschlüsselung\n• Vergleich zu Vorperioden\n• Trend-Analyse`);
+        }
+        
+        // Delete upload function
+        function deleteUpload(fileName) {
+            if (confirm(`❌ Möchten Sie "${fileName}" wirklich löschen?\n\nDiese Aktion kann nicht rückgängig gemacht werden.`)) {
+                showAlert(`🗑️ "${fileName}" wurde erfolgreich gelöscht.`, 'success');
+                // Here you would remove the row from the table
+            }
+        }
+            
+        
+        // Click handlers for upload zone
+        uploadZone.addEventListener('click', () => {
+            if (uploadProgress.style.display !== 'block') {
+                fileInput.click();
+            }
+        });
+    </script>
+</body>
+</html>
+                fileInput.click();
+            }
+        });
+    </script>
+</body>
+</html>

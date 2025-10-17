@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Popup Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+        }
+        
+        .test-button {
+            padding: 10px 20px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .popup-overlay {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            background: rgba(0, 0, 0, 0.5) !important;
+            z-index: 999999 !important;
+            display: none !important;
+        }
+        
+        .popup-dialog {
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            background: white !important;
+            padding: 2rem !important;
+            border-radius: 8px !important;
+            max-width: 450px !important;
+            width: 90% !important;
+            text-align: center !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+            z-index: 1000000 !important;
+        }
+    </style>
+</head>
+<body>
+    <h1>Popup Zentrierung Test</h1>
+    <button class="test-button" onclick="showTestPopup()">Test Popup anzeigen</button>
+    
+    <div id="popup" class="popup-overlay">
+        <div class="popup-dialog">
+            <h3 style="margin-top: 0; color: #f57c00;">⚠️ Test Popup</h3>
+            <p>Dies ist ein Test-Popup um die Zentrierung zu testen.</p>
+            <p>Ist dieses Popup perfekt zentriert?</p>
+            <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center;">
+                <button onclick="hideTestPopup()" style="padding: 0.5rem 1rem; background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">Schließen</button>
+                <button onclick="hideTestPopup()" style="padding: 0.5rem 1rem; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer;">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTestPopup() {
+            const popup = document.getElementById('popup');
+            popup.style.display = 'block';
+            console.log('Test popup angezeigt');
+        }
+        
+        function hideTestPopup() {
+            const popup = document.getElementById('popup');
+            popup.style.display = 'none';
+            console.log('Test popup versteckt');
+        }
+        
+        // Klick außerhalb schließt popup
+        document.getElementById('popup').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideTestPopup();
+            }
+        });
+        
+        // ESC-Taste
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                hideTestPopup();
+            }
+        });
+    </script>
+</body>
+</html>

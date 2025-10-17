@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BWA-Dashboard | Kleinunternehmer</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+        
+        .sidebar-header {
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+        }
+        
+        .sidebar-header .icon {
+            font-size: 48px;
+            color: #4fc3f7;
+            margin-bottom: 8px;
+        }
+        
+        .sidebar-header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .sidebar-header .subtitle {
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .user-profile {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #4fc3f7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .user-info h3 {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .user-info p {
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .nav-menu {
+            padding: 16px;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .nav-item:hover {
+            background: rgba(79, 195, 247, 0.1);
+        }
+        
+        .nav-item.active {
+            background: #4fc3f7;
+            color: #1a1a2e;
+        }
+        
+        .nav-item .icon {
+            margin-right: 12px;
+            font-size: 20px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 24px;
+        }
+        
+        .page-header {
+            margin-bottom: 32px;
+        }
+        
+        .page-header h1 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .page-header p {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .kpi-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+        
+        .kpi-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .kpi-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .kpi-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            font-size: 24px;
+            color: white;
+        }
+        
+        .kpi-info h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .kpi-info .value {
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .kpi-trend {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+        
+        .kpi-trend.positive {
+            color: #22c55e;
+        }
+        
+        .kpi-trend.negative {
+            color: #ef4444;
+        }
+        
+        /* Charts Section */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .chart-card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+        
+        /* Scoring Section */
+        .scoring-card {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .score-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #22c55e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 36px;
+            font-weight: 700;
+        }
+        
+        .score-info h2 {
+            font-size: 48px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .score-status {
+            font-size: 24px;
+            color: #22c55e;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .score-change {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .score-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 32px;
+        }
+        
+        .category-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: left;
+        }
+        
+        .category-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .category-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .category-score {
+            font-size: 20px;
+            font-weight: 700;
+            color: #22c55e;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #22c55e;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1565c0;
+        }
+        
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #22c55e;
+        }
+        
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border-left: 4px solid #f59e0b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="icon">🏢</div>
+                <h1>BWA Dashboard</h1>
+                <p class="subtitle">Kleinunternehmer</p>
+            </div>
+            
+            <div class="user-profile">
+                <div class="avatar">GS</div>
+                <div class="user-info">
+                    <h3>Gordian Schmitz</h3>
+                    <p>Unternehmer</p>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="demo.html" class="nav-item active">
+                    <span class="icon">📊</span>
+                    Dashboard
+                </a>
+                <a href="bwa-upload-clean.html" class="nav-item">
+                    <span class="icon">☁️</span>
+                    BWA Upload
+                </a>
+                <a href="scoring.html" class="nav-item">
+                    <span class="icon">📈</span>
+                    Scoring
+                </a>
+                <a href="recommendations.html" class="nav-item">
+                    <span class="icon">💡</span>
+                    Empfehlungen
+                </a>
+                <a href="analytics.html" class="nav-item">
+                    <span class="icon">📊</span>
+                    Analytics
+                </a>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-header">
+                <h1>Dashboard</h1>
+                <p>Überblick über Ihre Unternehmenskennzahlen für Oktober 2024</p>
+            </div>
+            
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon" style="background: #1976d2;">€</div>
+                        <div class="kpi-info">
+                            <h3>Umsatz</h3>
+                            <div class="value">45.000 €</div>
+                        </div>
+                    </div>
+                    <div class="kpi-trend positive">
+                        ↗ +7.1% zum Vormonat
+                    </div>
+                </div>
+                
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon" style="background: #22c55e;">📈</div>
+                        <div class="kpi-info">
+                            <h3>Gewinn</h3>
+                            <div class="value">13.000 €</div>
+                        </div>
+                    </div>
+                    <div class="kpi-trend positive">
+                        28.9% Marge
+                    </div>
+                </div>
+                
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon" style="background: #ff9800;">📉</div>
+                        <div class="kpi-info">
+                            <h3>Kosten</h3>
+                            <div class="value">32.000 €</div>
+                        </div>
+                    </div>
+                    <div class="kpi-trend positive">
+                        -2.3% optimiert
+                    </div>
+                </div>
+                
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon" style="background: #22c55e;">⭐</div>
+                        <div class="kpi-info">
+                            <h3>Gesundheits-Score</h3>
+                            <div class="value">85</div>
+                        </div>
+                    </div>
+                    <div class="kpi-trend positive">
+                        Note A - Ausgezeichnet
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Scoring Display -->
+            <div class="scoring-card">
+                <h2>Unternehmens-Gesundheit</h2>
+                <div class="score-display">
+                    <div class="score-circle">85</div>
+                    <div class="score-info">
+                        <h2>Note A</h2>
+                        <div class="score-status">Ausgezeichnet</div>
+                        <div class="score-change">+5 Punkte seit letztem Monat</div>
+                    </div>
+                </div>
+                
+                <div class="score-categories">
+                    <div class="category-item">
+                        <div class="category-header">
+                            <span class="category-name">💰 Liquidität</span>
+                            <span class="category-score">85</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 85%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="category-item">
+                        <div class="category-header">
+                            <span class="category-name">📈 Rentabilität</span>
+                            <span class="category-score">88</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 88%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="category-item">
+                        <div class="category-header">
+                            <span class="category-name">⚖️ Stabilität</span>
+                            <span class="category-score">83</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 83%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="category-item">
+                        <div class="category-header">
+                            <span class="category-name">🚀 Wachstum</span>
+                            <span class="category-score">82</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 82%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="category-item">
+                        <div class="category-header">
+                            <span class="category-name">⚡ Effizienz</span>
+                            <span class="category-score">87</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 87%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Charts -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>📊 Umsatz-Entwicklung</h3>
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-card">
+                    <h3>📈 Kosten-Verteilung</h3>
+                    <div class="chart-container">
+                        <canvas id="costChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Alerts -->
+            <div class="chart-card">
+                <h3>🔔 Aktuelle Hinweise</h3>
+                <div class="alert alert-warning">
+                    <span style="margin-right: 8px;">⚠️</span>
+                    Personalkosten sind um 12% gestiegen
+                </div>
+                <div class="alert alert-success">
+                    <span style="margin-right: 8px;">✅</span>
+                    Umsatz übertrifft Ziel um 15%
+                </div>
+                
+                <h3 style="margin-top: 24px;">🚀 Schnellaktionen</h3>
+                <div style="display: flex; gap: 12px; margin-top: 16px;">
+                    <button class="btn btn-primary">Neue BWA hochladen</button>
+                    <button class="btn btn-primary">Scoring aktualisieren</button>
+                    <button class="btn btn-primary">Empfehlungen anzeigen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Dashboard-Daten aus LocalStorage laden oder Default-Null-Werte verwenden
+        function loadDashboardData() {
+            try {
+                const savedData = localStorage.getItem('bwa-dashboard-current');
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    console.log('✅ BWA-Daten geladen:', data);
+                    return data;
+                }
+            } catch (e) {
+                console.error('Fehler beim Laden der Dashboard-Daten:', e);
+            }
+            
+            // Default Null-Werte
+            console.log('📊 Keine BWA-Daten vorhanden - zeige Null-Werte');
+            return {
+                revenue: 0,
+                costs: 0,
+                profit: 0,
+                margin: 0,
+                filename: null,
+                lastUpdate: null
+            };
+        }
+        
+        // Dashboard initialisieren
+        const dashboardData = loadDashboardData();
+        const hasData = dashboardData.revenue > 0;
+        
+        // KPI-Karten aktualisieren
+        document.addEventListener('DOMContentLoaded', function() {
+            // Umsatz Karte
+            const revenueElement = document.querySelector('.kpi-value');
+            if (revenueElement) {
+                revenueElement.textContent = hasData ? dashboardData.revenue.toLocaleString() + ' €' : '0 €';
+            }
+            
+            // Alle KPI-Werte finden und aktualisieren
+            const kpiValues = document.querySelectorAll('.kpi-value');
+            if (kpiValues.length >= 4) {
+                kpiValues[0].textContent = hasData ? dashboardData.revenue.toLocaleString() + ' €' : '0 €';
+                kpiValues[1].textContent = hasData ? dashboardData.costs.toLocaleString() + ' €' : '0 €';
+                kpiValues[2].textContent = hasData ? dashboardData.profit.toLocaleString() + ' €' : '0 €';
+                kpiValues[3].textContent = hasData ? dashboardData.margin + '%' : '0%';
+            }
+            
+            // Status-Meldung anzeigen
+            if (!hasData) {
+                const statusElement = document.querySelector('.page-header p');
+                if (statusElement) {
+                    statusElement.textContent = 'Noch keine BWA-Daten vorhanden. Laden Sie Ihre erste BWA-Datei hoch.';
+                    statusElement.style.color = '#f59e0b';
+                    statusElement.style.fontWeight = '600';
+                }
+            }
+        });
+        
+        // Charts mit echten oder Null-Daten
+        const chartData = hasData ? {
+            revenue: [0, 0, 0, 0, dashboardData.revenue],
+            costs: [0, 0, 0, 0, dashboardData.costs],
+            profit: [0, 0, 0, 0, dashboardData.profit]
+        } : {
+            revenue: [0, 0, 0, 0, 0],
+            costs: [0, 0, 0, 0, 0],
+            profit: [0, 0, 0, 0, 0]
+        };
+        
+        // Revenue Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jun', 'Jul', 'Aug', 'Sep', 'Okt'],
+                datasets: [{
+                    label: 'Umsatz (€)',
+                    data: chartData.revenue,
+                    borderColor: hasData ? '#1976d2' : '#d1d5db',
+                    backgroundColor: hasData ? 'rgba(25, 118, 210, 0.1)' : 'rgba(209, 213, 219, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        ticks: {
+                            callback: function(value) {
+                                return '€' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Cost Chart
+        const costCtx = document.getElementById('costChart').getContext('2d');
+        new Chart(costCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Personal', 'Material', 'Marketing', 'Büro', 'Sonstiges'],
+                datasets: [{
+                    data: [18000, 8000, 3000, 2000, 1000],
+                    backgroundColor: [
+                        '#1976d2',
+                        '#2196f3',
+                        '#64b5f6',
+                        '#90caf9',
+                        '#bbdefb'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

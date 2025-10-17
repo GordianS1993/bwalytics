@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Empfehlungen | BWA-Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar - Same as other pages */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+        
+        .sidebar-header {
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+        }
+        
+        .sidebar-header .icon {
+            font-size: 48px;
+            color: #4fc3f7;
+            margin-bottom: 8px;
+        }
+        
+        .sidebar-header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .sidebar-header .subtitle {
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .user-profile {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #4fc3f7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .user-info h3 {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .user-info p {
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .nav-menu {
+            padding: 16px;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .nav-item:hover {
+            background: rgba(79, 195, 247, 0.1);
+        }
+        
+        .nav-item.active {
+            background: #4fc3f7;
+            color: #1a1a2e;
+        }
+        
+        .nav-item .icon {
+            margin-right: 12px;
+            font-size: 20px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 24px;
+        }
+        
+        .page-header {
+            margin-bottom: 32px;
+        }
+        
+        .page-header h1 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .page-header p {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        /* AI Insights Header */
+        .ai-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+        
+        .ai-header h2 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        
+        .ai-header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .confidence-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin-top: 16px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        /* Priority Filters */
+        .priority-filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .filter-btn.active {
+            background: #1976d2;
+            border-color: #1976d2;
+            color: white;
+        }
+        
+        .filter-btn:hover {
+            border-color: #1976d2;
+        }
+        
+        /* Recommendations Grid */
+        .recommendations-grid {
+            display: grid;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .recommendation-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .recommendation-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .recommendation-card.high-priority {
+            border-left-color: #ef4444;
+        }
+        
+        .recommendation-card.medium-priority {
+            border-left-color: #f59e0b;
+        }
+        
+        .recommendation-card.low-priority {
+            border-left-color: #22c55e;
+        }
+        
+        .rec-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .rec-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .rec-content h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1a1a2e;
+        }
+        
+        .rec-meta {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .priority-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .priority-high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .priority-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .priority-low {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .impact-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            background: #e0f2fe;
+            color: #0c4a6e;
+        }
+        
+        .rec-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        
+        .action-steps {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .action-steps h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+        
+        .action-steps ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .action-steps li {
+            padding: 4px 0;
+            color: #666;
+            font-size: 14px;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .action-steps li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #22c55e;
+            font-weight: bold;
+        }
+        
+        .rec-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .rec-timeline {
+            font-size: 14px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1565c0;
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+        
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        
+        /* Implementation Tracker */
+        .implementation-tracker {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .tracker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .progress-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .progress-item {
+            text-align: center;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .progress-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1976d2;
+            margin-bottom: 4px;
+        }
+        
+        .progress-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .rec-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .rec-footer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .modal-header h3 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin: 0;
+            flex: 1;
+            margin-right: 16px;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #9ca3af;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+        
+        .close-btn:hover {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        .modal-section {
+            margin-bottom: 24px;
+        }
+        
+        .modal-section h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .modal-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        
+        .modal-steps {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .modal-steps li {
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #1976d2;
+            position: relative;
+            padding-left: 48px;
+        }
+        
+        .modal-steps li:before {
+            content: counter(step-counter);
+            counter-increment: step-counter;
+            position: absolute;
+            left: 16px;
+            top: 12px;
+            background: #1976d2;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .modal-steps {
+            counter-reset: step-counter;
+        }
+        
+        .modal-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+        
+        .info-item {
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .info-item strong {
+            display: block;
+            font-size: 14px;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        
+        .info-item span {
+            color: #666;
+            font-size: 13px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            padding-top: 24px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .implement-modal .modal-content {
+            max-width: 500px;
+        }
+        
+        .implement-checklist {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .implement-checklist h4 {
+            margin-bottom: 16px;
+            color: #374151;
+        }
+        
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding: 8px 0;
+        }
+        
+        .checklist-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #1976d2;
+        }
+        
+        .checklist-item label {
+            flex: 1;
+            color: #374151;
+            cursor: pointer;
+        }
+        
+        /* Notification Styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            padding: 16px 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border-left: 4px solid #1976d2;
+            z-index: 10001;
+            min-width: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .notification.success {
+            border-left-color: #22c55e;
+        }
+        
+        .notification button {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #9ca3af;
+            padding: 0;
+            margin-left: 12px;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="icon">🏢</div>
+                <h1>BWA Dashboard</h1>
+                <p class="subtitle">Kleinunternehmer</p>
+            </div>
+            
+            <div class="user-profile">
+                <div class="avatar">GS</div>
+                <div class="user-info">
+                    <h3>Gordian Schmitz</h3>
+                    <p>Unternehmer</p>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="demo.html" class="nav-item">
+                    <span class="icon">📊</span>
+                    Dashboard
+                </a>
+                <a href="bwa-upload-final.html" class="nav-item">
+                    <span class="icon">☁️</span>
+                    BWA Upload
+                </a>
+                <a href="scoring.html" class="nav-item">
+                    <span class="icon">📈</span>
+                    Scoring
+                </a>
+                <a href="recommendations.html" class="nav-item active">
+                    <span class="icon">💡</span>
+                    Empfehlungen
+                </a>
+                <a href="analytics.html" class="nav-item">
+                    <span class="icon">📊</span>
+                    Analytics
+                </a>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-header">
+                <h1>KI-Empfehlungen</h1>
+                <p>Intelligente Handlungsvorschläge zur Optimierung Ihres Unternehmens</p>
+            </div>
+            
+            <!-- AI Header -->
+            <div class="ai-header">
+                <h2>🤖 KI-Analyse Ihrer Unternehmensdaten</h2>
+                <p>Basierend auf Ihrer BWA-Historie und aktuellen Kennzahlen</p>
+                <div class="confidence-badge">
+                    ✨ Vertrauenswert: 92% • Letzte Aktualisierung: Heute
+                </div>
+            </div>
+            
+            <!-- Priority Filters -->
+            <div class="priority-filters">
+                <button class="filter-btn active" onclick="filterRecommendations('all')">
+                    🎯 Alle Empfehlungen
+                </button>
+                <button class="filter-btn" onclick="filterRecommendations('high')">
+                    🔥 Hohe Priorität
+                </button>
+                <button class="filter-btn" onclick="filterRecommendations('medium')">
+                    ⚡ Mittlere Priorität
+                </button>
+                <button class="filter-btn" onclick="filterRecommendations('low')">
+                    📈 Niedrige Priorität
+                </button>
+            </div>
+            
+            <!-- Recommendations Grid -->
+            <div class="recommendations-grid" id="recommendationsGrid">
+                <!-- High Priority -->
+                <div class="recommendation-card high-priority" data-priority="high">
+                    <div class="rec-header">
+                        <div class="rec-icon" style="background: #ef4444;">🚀</div>
+                        <div class="rec-content">
+                            <h3>Wachstumsmomentum nutzen</h3>
+                            <div class="rec-meta">
+                                <span class="priority-badge priority-high">Hohe Priorität</span>
+                                <span class="impact-badge">🎯 Hoher Impact</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="rec-description">
+                        Ihr positiver Umsatztrend (+7.1% zum Vormonat) und die starke Gewinnmarge (28.9%) 
+                        bieten eine ideale Gelegenheit zur Expansion. Jetzt ist der optimale Zeitpunkt für 
+                        strategische Investitionen in Wachstum.
+                    </div>
+                    <div class="action-steps">
+                        <h4>🎯 Konkrete Maßnahmen:</h4>
+                        <ul>
+                            <li>Marketing-Budget um 10-15% erhöhen</li>
+                            <li>Neue Vertriebskanäle erschließen</li>
+                            <li>Kapazitäten für gestiegene Nachfrage ausbauen</li>
+                            <li>Kundenbindungsprogramm entwickeln</li>
+                        </ul>
+                    </div>
+                    <div class="rec-footer">
+                        <div class="rec-timeline">
+                            ⏱️ Umsetzung: 3-6 Monate • 💰 Investment: Mittel
+                        </div>
+                        <div>
+                            <button class="btn btn-primary">✅ Umsetzen</button>
+                            <button class="btn btn-secondary">📋 Details</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- High Priority -->
+                <div class="recommendation-card high-priority" data-priority="high">
+                    <div class="rec-header">
+                        <div class="rec-icon" style="background: #dc2626;">💰</div>
+                        <div class="rec-content">
+                            <h3>Liquiditätsmanagement optimieren</h3>
+                            <div class="rec-meta">
+                                <span class="priority-badge priority-high">Hohe Priorität</span>
+                                <span class="impact-badge">🛡️ Risikoreduktion</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="rec-description">
+                        Obwohl Ihre Liquidität gut ist, sollten Sie für zukünftige Investitionen und 
+                        unvorhergesehene Situationen zusätzliche Finanzpolster aufbauen. Ihr Cashflow 
+                        erlaubt es, strategische Reserven zu bilden.
+                    </div>
+                    <div class="action-steps">
+                        <h4>💡 Empfohlene Schritte:</h4>
+                        <ul>
+                            <li>Liquiditätsplanung für 12 Monate erstellen</li>
+                            <li>Kreditlinie für Notfälle einrichten</li>
+                            <li>Rücklagenbildung systematisieren</li>
+                            <li>Cashflow-Forecasting implementieren</li>
+                        </ul>
+                    </div>
+                    <div class="rec-footer">
+                        <div class="rec-timeline">
+                            ⏱️ Umsetzung: 1-3 Monate • 💰 Investment: Niedrig
+                        </div>
+                        <div>
+                            <button class="btn btn-primary">✅ Umsetzen</button>
+                            <button class="btn btn-secondary">📋 Details</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Medium Priority -->
+                <div class="recommendation-card medium-priority" data-priority="medium">
+                    <div class="rec-header">
+                        <div class="rec-icon" style="background: #f59e0b;">⚡</div>
+                        <div class="rec-content">
+                            <h3>Kostenvorteil weiter ausbauen</h3>
+                            <div class="rec-meta">
+                                <span class="priority-badge priority-medium">Mittlere Priorität</span>
+                                <span class="impact-badge">📊 Effizienzsteigerung</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="rec-description">
+                        Ihre Kostenkontrolle (71.1% Kostenanteil) ist bereits überdurchschnittlich. 
+                        Durch weitere Optimierungen können Sie diesen Wettbewerbsvorteil ausbauen und 
+                        zusätzliche Margen schaffen.
+                    </div>
+                    <div class="action-steps">
+                        <h4>🔧 Optimierungsmaßnahmen:</h4>
+                        <ul>
+                            <li>Prozessautomatisierung vorantreiben</li>
+                            <li>Lieferantenverhandlungen intensivieren</li>
+                            <li>Digitalisierung weiter vorantreiben</li>
+                            <li>Benchmarking mit Wettbewerbern</li>
+                        </ul>
+                    </div>
+                    <div class="rec-footer">
+                        <div class="rec-timeline">
+                            ⏱️ Umsetzung: 2-4 Monate • 💰 Investment: Niedrig
+                        </div>
+                        <div>
+                            <button class="btn btn-primary">✅ Umsetzen</button>
+                            <button class="btn btn-secondary">📋 Details</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Medium Priority -->
+                <div class="recommendation-card medium-priority" data-priority="medium">
+                    <div class="rec-header">
+                        <div class="rec-icon" style="background: #d97706;">📊</div>
+                        <div class="rec-content">
+                            <h3>Datengetriebene Entscheidungen</h3>
+                            <div class="rec-meta">
+                                <span class="priority-badge priority-medium">Mittlere Priorität</span>
+                                <span class="impact-badge">🎯 Strategievorteil</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="rec-description">
+                        Implementieren Sie erweiterte Analytics um Trends früher zu erkennen und 
+                        datenbasierte Entscheidungen zu treffen. Ihre BWA-Daten bieten großes Potenzial 
+                        für tiefere Business Intelligence.
+                    </div>
+                    <div class="action-steps">
+                        <h4>📈 Analytics-Setup:</h4>
+                        <ul>
+                            <li>Monatliche KPI-Reviews einführen</li>
+                            <li>Trend-Alerts für Abweichungen</li>
+                            <li>Competitor-Benchmarking aufbauen</li>
+                            <li>Predictive Analytics evaluieren</li>
+                        </ul>
+                    </div>
+                    <div class="rec-footer">
+                        <div class="rec-timeline">
+                            ⏱️ Umsetzung: 3-5 Monate • 💰 Investment: Mittel
+                        </div>
+                        <div>
+                            <button class="btn btn-primary">✅ Umsetzen</button>
+                            <button class="btn btn-secondary">📋 Details</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Low Priority -->
+                <div class="recommendation-card low-priority" data-priority="low">
+                    <div class="rec-header">
+                        <div class="rec-icon" style="background: #22c55e;">🎯</div>
+                        <div class="rec-content">
+                            <h3>Langfristige Positioning stärken</h3>
+                            <div class="rec-meta">
+                                <span class="priority-badge priority-low">Niedrige Priorität</span>
+                                <span class="impact-badge">🚀 Langzeitpotential</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="rec-description">
+                        Strategische Weiterentwicklung für nachhaltigen Erfolg. Nutzen Sie Ihre starke 
+                        Position für langfristige Wettbewerbsvorteile und Marktführerschaft in Ihrer Nische.
+                    </div>
+                    <div class="action-steps">
+                        <h4>🔮 Strategische Initiativen:</h4>
+                        <ul>
+                            <li>Marktpositionierung analysieren</li>
+                            <li>Alleinstellungsmerkmale schärfen</li>
+                            <li>Innovations-Pipeline aufbauen</li>
+                            <li>Kundenanalyse vertiefen</li>
+                        </ul>
+                    </div>
+                    <div class="rec-footer">
+                        <div class="rec-timeline">
+                            ⏱️ Umsetzung: 6-12 Monate • 💰 Investment: Hoch
+                        </div>
+                        <div>
+                            <button class="btn btn-primary">✅ Umsetzen</button>
+                            <button class="btn btn-secondary">📋 Details</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Implementation Tracker -->
+            <div class="implementation-tracker">
+                <div class="tracker-header">
+                    <h3>📊 Umsetzungsfortschritt</h3>
+                    <button class="btn btn-secondary">🔄 Aktualisieren</button>
+                </div>
+                
+                <div class="progress-overview">
+                    <div class="progress-item">
+                        <div class="progress-number">5</div>
+                        <div class="progress-label">Aktive Empfehlungen</div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-number">2</div>
+                        <div class="progress-label">In Umsetzung</div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-number">3</div>
+                        <div class="progress-label">Abgeschlossen</div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-number">85%</div>
+                        <div class="progress-label">Erfolgsrate</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Details Modal -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Empfehlung Details</h3>
+                <button class="close-btn" onclick="closeDetailsModal()">×</button>
+            </div>
+            
+            <div class="modal-section">
+                <h4>📋 Beschreibung</h4>
+                <p class="modal-description" id="modalDescription"></p>
+            </div>
+            
+            <div class="modal-section">
+                <h4>🎯 Umsetzungsschritte</h4>
+                <ol class="modal-steps" id="modalSteps"></ol>
+            </div>
+            
+            <div class="modal-section">
+                <h4>ℹ️ Weitere Informationen</h4>
+                <div class="modal-info-grid">
+                    <div class="info-item">
+                        <strong>Zeitrahmen & Investment</strong>
+                        <span id="modalTimeline"></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Erwarteter Impact</strong>
+                        <span id="modalImpact"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeDetailsModal()">Schließen</button>
+                <button class="btn btn-primary" onclick="closeDetailsModal(); openImplementModal(document.getElementById('modalTitle').textContent)">
+                    ✅ Jetzt umsetzen
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Implementation Modal -->
+    <div id="implementModal" class="modal implement-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Empfehlung umsetzen</h3>
+                <button class="close-btn" onclick="closeImplementModal()">×</button>
+            </div>
+            
+            <div class="modal-section">
+                <p>Sie sind dabei, die Empfehlung <strong id="implementTitle"></strong> als umgesetzt zu markieren.</p>
+                
+                <div class="implement-checklist">
+                    <h4>📝 Umsetzungs-Checkliste:</h4>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check1">
+                        <label for="check1">Maßnahme geplant und Ressourcen zugewiesen</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check2">
+                        <label for="check2">Zeitplan definiert und kommuniziert</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check3">
+                        <label for="check3">Verantwortlichkeiten geklärt</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="check4">
+                        <label for="check4">Erfolgs-Metriken festgelegt</label>
+                    </div>
+                </div>
+                
+                <p><strong>💡 Tipp:</strong> Markieren Sie die Empfehlung nur als umgesetzt, wenn Sie mit der Umsetzung begonnen haben oder diese abgeschlossen ist.</p>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeImplementModal()">Abbrechen</button>
+                <button class="btn btn-primary" onclick="markAsImplemented(this)">
+                    ✅ Als umgesetzt markieren
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function filterRecommendations(priority) {
+            const cards = document.querySelectorAll('.recommendation-card');
+            const buttons = document.querySelectorAll('.filter-btn');
+            
+            // Update active button
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Filter cards
+            cards.forEach(card => {
+                if (priority === 'all' || card.dataset.priority === priority) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        // Modal functionality
+        function openDetailsModal(title, description, steps, timeline, impact) {
+            const modal = document.getElementById('detailsModal');
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalDescription').textContent = description;
+            document.getElementById('modalTimeline').textContent = timeline;
+            document.getElementById('modalImpact').textContent = impact;
+            
+            const stepsList = document.getElementById('modalSteps');
+            stepsList.innerHTML = '';
+            steps.forEach(step => {
+                const li = document.createElement('li');
+                li.textContent = step;
+                stepsList.appendChild(li);
+            });
+            
+            modal.style.display = 'flex';
+        }
+        
+        function closeDetailsModal() {
+            document.getElementById('detailsModal').style.display = 'none';
+        }
+        
+        function openImplementModal(title) {
+            const modal = document.getElementById('implementModal');
+            document.getElementById('implementTitle').textContent = title;
+            modal.style.display = 'flex';
+        }
+        
+        function closeImplementModal() {
+            document.getElementById('implementModal').style.display = 'none';
+        }
+        
+        function markAsImplemented(button) {
+            const card = button.closest('.recommendation-card');
+            const title = card.querySelector('h3').textContent;
+            
+            // Mark as implemented
+            button.textContent = '✅ Umgesetzt';
+            button.style.background = '#22c55e';
+            button.disabled = true;
+            
+            // Add success indicator
+            const indicator = document.createElement('div');
+            indicator.innerHTML = '🎉 Als umgesetzt markiert!';
+            indicator.style.cssText = 'background: #d1fae5; color: #065f46; padding: 8px; border-radius: 6px; margin-top: 12px; font-size: 14px; font-weight: 600;';
+            card.querySelector('.rec-footer').appendChild(indicator);
+            
+            // Close modal
+            closeImplementModal();
+            
+            // Show success notification
+            showNotification(`"${title}" wurde als umgesetzt markiert!`, 'success');
+        }
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()">×</button>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+        
+        // Add click handlers for action buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            // Implement buttons
+            const implementButtons = document.querySelectorAll('.btn-primary');
+            implementButtons.forEach(btn => {
+                if (btn.textContent.includes('Umsetzen')) {
+                    btn.addEventListener('click', function() {
+                        const card = this.closest('.recommendation-card');
+                        const title = card.querySelector('h3').textContent;
+                        openImplementModal(title);
+                    });
+                }
+            });
+            
+            // Details buttons
+            const detailButtons = document.querySelectorAll('.btn-secondary');
+            detailButtons.forEach(btn => {
+                if (btn.textContent.includes('Details')) {
+                    btn.addEventListener('click', function() {
+                        const card = this.closest('.recommendation-card');
+                        const title = card.querySelector('h3').textContent;
+                        const description = card.querySelector('.rec-description').textContent;
+                        const timeline = card.querySelector('.rec-timeline').textContent;
+                        const impact = card.querySelector('.impact-badge').textContent;
+                        
+                        // Extract steps from action-steps
+                        const stepElements = card.querySelectorAll('.action-steps li');
+                        const steps = Array.from(stepElements).map(li => li.textContent);
+                        
+                        openDetailsModal(title, description, steps, timeline, impact);
+                    });
+                }
+            });
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', function(event) {
+                const detailsModal = document.getElementById('detailsModal');
+                const implementModal = document.getElementById('implementModal');
+                
+                if (event.target === detailsModal) {
+                    closeDetailsModal();
+                }
+                if (event.target === implementModal) {
+                    closeImplementModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
