@@ -15,12 +15,6 @@
     <!-- Supabase Konfiguration (wird nach Setup erstellt) -->
     <script src="supabase-config.js" onerror="console.log('ℹ️ supabase-config.js nicht gefunden - Gast-Modus aktiv')"></script>
     
-    <!-- Stripe.js SDK für Zahlungsabwicklung -->
-    <script src="https://js.stripe.com/v3/"></script>
-    
-    <!-- Stripe Konfiguration (wird nach Setup erstellt) -->
-    <script src="stripe-config.js" onerror="console.log('ℹ️ stripe-config.js nicht gefunden - Zahlungen deaktiviert')"></script>
-    
     <style>
         /* Professionelles Design System */
         :root {
@@ -74,162 +68,6 @@
             box-sizing: border-box;
         }
 
-        /* ============================================
-           PREMIUM FEATURE-GATING STYLES
-           ============================================ */
-        
-        .premium-locked {
-            position: relative;
-            pointer-events: none;
-            user-select: none;
-        }
-
-        .premium-locked .content {
-            filter: blur(8px);
-            opacity: 0.4;
-        }
-
-        .premium-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, rgba(30, 64, 175, 0.95) 0%, rgba(59, 130, 246, 0.95) 100%);
-            border-radius: 12px;
-            padding: 40px;
-            z-index: 10;
-            pointer-events: all;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .premium-overlay:hover {
-            background: linear-gradient(135deg, rgba(30, 64, 175, 0.98) 0%, rgba(59, 130, 246, 0.98) 100%);
-            transform: scale(1.02);
-        }
-
-        .premium-badge {
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-            color: #78350f;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
-            margin-bottom: 16px;
-        }
-
-        .premium-overlay h2 {
-            color: white;
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 12px;
-            text-align: center;
-        }
-
-        .premium-overlay p {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 1.1rem;
-            text-align: center;
-            margin-bottom: 24px;
-            line-height: 1.6;
-        }
-
-        .premium-features {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 24px;
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .premium-features ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .premium-features li {
-            color: white;
-            padding: 8px 0;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .premium-features li::before {
-            content: "✓";
-            display: inline-block;
-            width: 24px;
-            height: 24px;
-            background: #10b981;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 24px;
-            font-weight: bold;
-            flex-shrink: 0;
-        }
-
-        .premium-price {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: white;
-            margin-bottom: 24px;
-        }
-
-        .premium-price small {
-            font-size: 1rem;
-            font-weight: 400;
-            opacity: 0.8;
-        }
-
-        .upgrade-button {
-            background: white;
-            color: #1e40af;
-            padding: 16px 40px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);
-            transition: all 0.2s ease;
-        }
-
-        .upgrade-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 24px rgba(255, 255, 255, 0.4);
-        }
-
-        .login-prompt-button {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            padding: 16px 40px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
-            transition: all 0.2s ease;
-        }
-
-        .login-prompt-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 24px rgba(16, 185, 129, 0.4);
-        }
-
         body {
             font-family: var(--font-family-sans);
             background: var(--color-gray-50);
@@ -257,84 +95,76 @@
         }
 
         .sidebar-header {
-            padding: 36px 24px;
+            padding: 32px 24px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
         .sidebar-header h2 {
-            font-size: 20px;
-            font-weight: 700;
+            font-size: 18px;
+            font-weight: 600;
             color: white;
             letter-spacing: -0.5px;
-            margin: 8px 0 4px 0;
         }
 
         .sidebar-header p {
-            font-size: 13px;
-            color: var(--color-gray-500);
-            margin-top: 4px;
-            font-weight: 400;
-        }
-
-        .user-profile {
-            display: block;
-            padding: 28px 24px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            background: rgba(255,255,255,0.03);
-        }
-
-        .user-avatar {
-            width: 56px;
-            height: 56px;
-            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 20px;
-            margin: 0 auto 16px;
-            color: white;
-            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
-        }
-
-        .user-info {
-            text-align: center;
-        }
-
-        .user-info h4 {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: white;
-            line-height: 1.4;
-        }
-
-        .user-info p {
             font-size: 13px;
             color: var(--color-gray-400);
             margin-top: 4px;
         }
 
+        .user-profile {
+            display: flex;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.03);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--color-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            margin-right: 12px;
+            color: white;
+        }
+
+        .user-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 2px;
+            color: white;
+        }
+
+        .user-info p {
+            font-size: 12px;
+            color: var(--color-gray-400);
+        }
+
         .nav-menu {
             list-style: none;
-            padding: 20px 16px;
+            padding: 16px 12px;
         }
 
         .nav-item {
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .nav-link {
             display: flex;
             align-items: center;
-            padding: 14px 18px;
+            padding: 12px 16px;
             color: var(--color-gray-300);
             text-decoration: none;
             transition: all 0.2s ease;
             cursor: pointer;
             border-radius: var(--radius-md);
-            font-size: 14.5px;
+            font-size: 14px;
             font-weight: 500;
         }
 
@@ -726,13 +556,13 @@
             </div>
             <div class="user-info">
                 <h4 id="userName">Gast-Modus</h4>
-                <p id="userTier">
-                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--color-gray-400); margin-right: 6px;"></span>
+                <p id="userTier" style="font-size: 0.75rem; color: var(--color-gray-400); margin-top: 2px;">
+                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--color-gray-400); margin-right: 4px;"></span>
                     Free Version
                 </p>
             </div>
             <!-- Login-Button für nicht eingeloggte User -->
-            <button id="loginButton" onclick="showLoginModal()" style="margin-top: 16px; width: 100%; padding: 12px; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(30, 64, 175, 0.3);">
+            <button id="loginButton" onclick="showLoginModal()" style="margin-top: 12px; width: 100%; padding: 8px; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; border: none; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">
                 Jetzt anmelden
             </button>
         </div>
@@ -766,12 +596,6 @@
                 <a href="#" class="nav-link" onclick="showSection('analytics', event); return false;">
                     <i>▲</i>
                     <span>Analytics</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link" data-view="history" onclick="showSection('history', event); return false;">
-                    <i>📊</i>
-                    <span>Historie</span>
                 </a>
             </li>
         </ul>
@@ -899,7 +723,7 @@
         
         <!-- Recommendations Section -->
         <div id="recommendations-section" class="section">
-            <div class="container" id="recommendationsContainer">
+            <div class="container">
                 <div class="header">
                     <h1>Empfehlungen</h1>
                     <p>KI-basierte Geschäftsempfehlungen</p>
@@ -915,7 +739,7 @@
         
         <!-- Analytics Section -->
         <div id="analytics-section" class="section">
-            <div class="container" id="analyticsContainer">
+            <div class="container">
                 <div class="header">
                     <h1>Analytics</h1>
                     <p>Detaillierte Unternehmensanalyse</p>
@@ -925,30 +749,6 @@
                         Analytics werden nach BWA-Upload verfügbar<br>
                         <small>Tiefgehende Analyse Ihrer Geschäftsdaten</small>
                     </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Historie Section -->
-        <div id="history-section" class="section">
-            <div class="container">
-                <div class="header" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 24px; border-radius: 12px; margin-bottom: 24px;">
-                    <h1 style="margin: 0; font-size: 1.8rem;">📊 BWA-Historie</h1>
-                    <p style="margin: 8px 0 0 0; opacity: 0.9;">Ihre gespeicherten BWA-Analysen im Überblick</p>
-                </div>
-                
-                <div id="historyContent">
-                    <!-- Wird dynamisch gefüllt -->
-                    <div style="text-align: center; padding: 60px 20px;">
-                        <div style="font-size: 4rem; margin-bottom: 16px; opacity: 0.3;">📊</div>
-                        <h2 style="color: var(--color-gray-600); font-weight: 600; margin-bottom: 8px;">Noch keine BWAs gespeichert</h2>
-                        <p style="color: var(--color-gray-500); margin-bottom: 24px;">
-                            Laden Sie Ihre erste BWA hoch, um eine Historie aufzubauen
-                        </p>
-                        <button onclick="showSection('upload')" style="padding: 12px 24px; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer;">
-                            Jetzt BWA hochladen
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -969,13 +769,6 @@
         function showSection(sectionName, event) {
             console.log('🔄 showSection aufgerufen:', sectionName);
             
-            // Prüfe ob Feature verfügbar ist
-            if (sectionName === 'history' && !currentUser.isLoggedIn) {
-                showNotification('⚠️ Bitte melden Sie sich an, um die Historie zu nutzen', 'warning');
-                setTimeout(() => showLoginModal(), 500);
-                return;
-            }
-            
             // Hide all sections
             document.querySelectorAll('.section').forEach(section => {
                 section.classList.remove('active');
@@ -991,11 +784,6 @@
             if (targetSection) {
                 targetSection.classList.add('active');
                 console.log('✅ Section aktiviert:', sectionName);
-                
-                // Lade Historie-Daten wenn Historie-Section geöffnet wird
-                if (sectionName === 'history') {
-                    loadBWAHistory();
-                }
             } else {
                 console.error('❌ Section nicht gefunden:', sectionName + '-section');
             }
@@ -1706,387 +1494,6 @@
                     <div class="metric-label">Marge</div>
                 </div>
             `;
-            
-            // Wenn User eingeloggt ist: BWA in Historie speichern
-            if (currentUser.isLoggedIn && canAccessFeature('history')) {
-                saveBWAToHistory(data);
-            }
-        }
-
-        // ============================================
-        // BWA-HISTORIE FUNKTIONEN
-        // ============================================
-
-        // BWA in Supabase speichern
-        async function saveBWAToHistory(bwaData) {
-            try {
-                if (!supabase) {
-                    console.log('ℹ️ Supabase nicht konfiguriert - Historie nicht verfügbar');
-                    return;
-                }
-
-                // Monat und Jahr aus BWA extrahieren (oder aktuelles Datum verwenden)
-                const now = new Date();
-                const monat = bwaData.month || now.toLocaleString('de-DE', { month: 'long' });
-                const jahr = bwaData.year || now.getFullYear();
-
-                // Business Score berechnen
-                const businessScore = calculateBusinessScore(
-                    bwaData.margin,
-                    bwaData.costs / bwaData.revenue * 100,
-                    bwaData.profit
-                );
-
-                // BWA-Daten vorbereiten
-                const bwaRecord = {
-                    user_id: currentUser.userId,
-                    upload_date: new Date().toISOString().split('T')[0],
-                    monat: monat,
-                    jahr: jahr,
-                    
-                    // Finanzdaten
-                    umsatz: bwaData.revenue || 0,
-                    kosten: bwaData.costs || 0,
-                    gewinn: bwaData.profit || 0,
-                    gewinnmarge: bwaData.margin || 0,
-                    
-                    // Liquidität
-                    liquide_mittel: bwaData.liquidAssets || 0,
-                    forderungen: bwaData.receivables || 0,
-                    verbindlichkeiten: bwaData.liabilities || 0,
-                    liquiditaetsgrad: bwaData.liquidityRatio || 0,
-                    
-                    // Eigenkapital
-                    eigenkapital: bwaData.equity || 0,
-                    fremdkapital: bwaData.debt || 0,
-                    eigenkapitalquote: bwaData.equityRatio || 0,
-                    
-                    // Kostenstruktur als JSON
-                    kostenaufschluessung: bwaData.costBreakdown || {},
-                    
-                    // Business Score
-                    business_score: businessScore
-                };
-
-                console.log('💾 Speichere BWA in Historie...', bwaRecord);
-
-                // In Supabase speichern (mit upsert für Update bei existierendem Monat/Jahr)
-                const { data, error } = await supabase
-                    .from('bwa_uploads')
-                    .upsert(bwaRecord, {
-                        onConflict: 'user_id,jahr,monat'
-                    })
-                    .select();
-
-                if (error) throw error;
-
-                console.log('✅ BWA in Historie gespeichert:', data);
-                showNotification('💾 BWA in Ihrer Historie gespeichert', 'success');
-                
-                // Historie-Badge aktualisieren
-                updateHistoryBadge();
-                
-            } catch (error) {
-                console.error('❌ Fehler beim Speichern der BWA:', error);
-                showNotification('⚠️ BWA konnte nicht gespeichert werden', 'warning');
-            }
-        }
-
-        // Anzahl der gespeicherten BWAs abrufen
-        async function getBWAHistoryCount() {
-            try {
-                if (!supabase || !currentUser.isLoggedIn) return 0;
-
-                const { count, error } = await supabase
-                    .from('bwa_uploads')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('user_id', currentUser.userId);
-
-                if (error) throw error;
-
-                return count || 0;
-            } catch (error) {
-                console.error('Fehler beim Abrufen der BWA-Anzahl:', error);
-                return 0;
-            }
-        }
-
-        // Historie-Badge im Menü aktualisieren
-        async function updateHistoryBadge() {
-            const count = await getBWAHistoryCount();
-            
-            // Finde Historie-Menüpunkt
-            const historyLink = document.querySelector('[data-view="history"]');
-            if (!historyLink) return;
-
-            // Entferne altes Badge
-            const oldBadge = historyLink.querySelector('.history-badge');
-            if (oldBadge) oldBadge.remove();
-
-            // Füge neues Badge hinzu
-            if (count > 0) {
-                const badge = document.createElement('span');
-                badge.className = 'history-badge';
-                badge.textContent = count;
-                badge.style.cssText = `
-                    display: inline-block;
-                    background: var(--color-primary);
-                    color: white;
-                    font-size: 0.7rem;
-                    font-weight: 700;
-                    padding: 2px 6px;
-                    border-radius: 10px;
-                    margin-left: 8px;
-                `;
-                historyLink.appendChild(badge);
-            }
-        }
-
-        // BWA-Historie aus Supabase laden und anzeigen
-        async function loadBWAHistory() {
-            const historyContent = document.getElementById('historyContent');
-            if (!historyContent) return;
-
-            try {
-                if (!supabase || !currentUser.isLoggedIn) {
-                    historyContent.innerHTML = `
-                        <div style="text-align: center; padding: 60px 20px;">
-                            <div style="font-size: 4rem; margin-bottom: 16px; opacity: 0.3;">🔐</div>
-                            <h2 style="color: var(--color-gray-600); font-weight: 600; margin-bottom: 8px;">Bitte anmelden</h2>
-                            <p style="color: var(--color-gray-500); margin-bottom: 24px;">
-                                Melden Sie sich an, um Ihre BWA-Historie zu sehen
-                            </p>
-                            <button onclick="showLoginModal()" style="padding: 12px 24px; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer;">
-                                Jetzt anmelden
-                            </button>
-                        </div>
-                    `;
-                    return;
-                }
-
-                // Loading-State
-                historyContent.innerHTML = `
-                    <div style="text-align: center; padding: 60px 20px;">
-                        <div style="font-size: 3rem; margin-bottom: 16px;">⏳</div>
-                        <p style="color: var(--color-gray-600);">Historie wird geladen...</p>
-                    </div>
-                `;
-
-                // BWAs aus Supabase laden
-                const { data: bwaList, error } = await supabase
-                    .from('bwa_uploads')
-                    .select('*')
-                    .eq('user_id', currentUser.userId)
-                    .order('jahr', { ascending: false })
-                    .order('monat', { ascending: false });
-
-                if (error) throw error;
-
-                if (!bwaList || bwaList.length === 0) {
-                    historyContent.innerHTML = `
-                        <div style="text-align: center; padding: 60px 20px;">
-                            <div style="font-size: 4rem; margin-bottom: 16px; opacity: 0.3;">📊</div>
-                            <h2 style="color: var(--color-gray-600); font-weight: 600; margin-bottom: 8px;">Noch keine BWAs gespeichert</h2>
-                            <p style="color: var(--color-gray-500); margin-bottom: 24px;">
-                                Laden Sie Ihre erste BWA hoch, um eine Historie aufzubauen
-                            </p>
-                            <button onclick="showSection('upload')" style="padding: 12px 24px; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer;">
-                                Jetzt BWA hochladen
-                            </button>
-                        </div>
-                    `;
-                    return;
-                }
-
-                // Historie-Tabelle rendern
-                renderBWAHistoryTable(bwaList);
-
-            } catch (error) {
-                console.error('❌ Fehler beim Laden der Historie:', error);
-                historyContent.innerHTML = `
-                    <div style="text-align: center; padding: 60px 20px;">
-                        <div style="font-size: 3rem; margin-bottom: 16px; color: #ef4444;">⚠️</div>
-                        <h2 style="color: var(--color-gray-600); font-weight: 600; margin-bottom: 8px;">Fehler beim Laden</h2>
-                        <p style="color: var(--color-gray-500); margin-bottom: 24px;">
-                            ${error.message}
-                        </p>
-                        <button onclick="loadBWAHistory()" style="padding: 12px 24px; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer;">
-                            Erneut versuchen
-                        </button>
-                    </div>
-                `;
-            }
-        }
-
-        // BWA-Historie als Tabelle darstellen
-        function renderBWAHistoryTable(bwaList) {
-            const historyContent = document.getElementById('historyContent');
-            if (!historyContent) return;
-
-            // Statistiken berechnen
-            const totalBWAs = bwaList.length;
-            const avgScore = Math.round(bwaList.reduce((sum, bwa) => sum + (bwa.business_score || 0), 0) / totalBWAs);
-            const latestBWA = bwaList[0];
-
-            // Trend berechnen (letzten 3 Monate)
-            const recentBWAs = bwaList.slice(0, Math.min(3, bwaList.length));
-            const avgRecentRevenue = recentBWAs.reduce((sum, bwa) => sum + (bwa.umsatz || 0), 0) / recentBWAs.length;
-            const oldestRecent = recentBWAs[recentBWAs.length - 1];
-            const trend = oldestRecent && oldestRecent.umsatz > 0 
-                ? ((latestBWA.umsatz - oldestRecent.umsatz) / oldestRecent.umsatz * 100).toFixed(1)
-                : 0;
-
-            historyContent.innerHTML = `
-                <!-- Statistik-Cards -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                    <div style="background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%); padding: 20px; border-radius: 12px; border-left: 4px solid #3b82f6;">
-                        <div style="font-size: 0.85rem; color: #1e40af; font-weight: 600; margin-bottom: 8px;">Gesamt BWAs</div>
-                        <div style="font-size: 2rem; font-weight: 700; color: #1e40af;">${totalBWAs}</div>
-                    </div>
-                    <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); padding: 20px; border-radius: 12px; border-left: 4px solid #10b981;">
-                        <div style="font-size: 0.85rem; color: #065f46; font-weight: 600; margin-bottom: 8px;">Ø Business Score</div>
-                        <div style="font-size: 2rem; font-weight: 700; color: #065f46;">${avgScore}/100</div>
-                    </div>
-                    <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 20px; border-radius: 12px; border-left: 4px solid #f59e0b;">
-                        <div style="font-size: 0.85rem; color: #92400e; font-weight: 600; margin-bottom: 8px;">Trend (3 Monate)</div>
-                        <div style="font-size: 2rem; font-weight: 700; color: #92400e;">
-                            ${trend > 0 ? '+' : ''}${trend}%
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Filter & Aktionen -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
-                    <div>
-                        <button onclick="showTrendComparison()" style="padding: 10px 20px; background: var(--color-primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-right: 8px;">
-                            📈 Trend-Vergleich
-                        </button>
-                        <button onclick="exportHistory()" style="padding: 10px 20px; background: white; color: var(--color-primary); border: 2px solid var(--color-primary); border-radius: 8px; font-weight: 600; cursor: pointer;">
-                            📄 Als PDF exportieren
-                        </button>
-                    </div>
-                    <select id="historyFilter" onchange="filterHistory()" style="padding: 10px; border: 2px solid var(--color-gray-200); border-radius: 8px; font-size: 0.95rem;">
-                        <option value="all">Alle anzeigen</option>
-                        <option value="2025">2025</option>
-                        <option value="2024">2024</option>
-                        <option value="last6">Letzte 6 Monate</option>
-                    </select>
-                </div>
-
-                <!-- BWA-Liste -->
-                <div id="bwaListContainer">
-                    ${bwaList.map(bwa => renderBWACard(bwa)).join('')}
-                </div>
-            `;
-        }
-
-        // Einzelne BWA-Card rendern
-        function renderBWACard(bwa) {
-            const scoreColor = bwa.business_score >= 75 ? '#10b981' : bwa.business_score >= 50 ? '#f59e0b' : '#ef4444';
-            const profitColor = bwa.gewinn >= 0 ? '#10b981' : '#ef4444';
-            
-            return `
-                <div class="bwa-card" style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.2s; cursor: pointer; border-left: 4px solid ${scoreColor};" onclick="showBWADetails('${bwa.id}')" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.12)'" onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'">
-                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
-                        <div>
-                            <h3 style="margin: 0 0 4px 0; font-size: 1.2rem; color: var(--color-gray-900);">
-                                ${bwa.monat} ${bwa.jahr}
-                            </h3>
-                            <p style="margin: 0; color: var(--color-gray-500); font-size: 0.85rem;">
-                                Hochgeladen: ${new Date(bwa.upload_date).toLocaleDateString('de-DE')}
-                            </p>
-                        </div>
-                        <div style="text-align: right;">
-                            <div style="font-size: 0.75rem; color: var(--color-gray-600); margin-bottom: 4px;">Business Score</div>
-                            <div style="font-size: 1.5rem; font-weight: 700; color: ${scoreColor};">
-                                ${bwa.business_score}/100
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 16px;">
-                        <div>
-                            <div style="font-size: 0.75rem; color: var(--color-gray-600); margin-bottom: 4px;">Umsatz</div>
-                            <div style="font-size: 1.1rem; font-weight: 600; color: var(--color-gray-900);">
-                                ${(bwa.umsatz || 0).toLocaleString('de-DE')}€
-                            </div>
-                        </div>
-                        <div>
-                            <div style="font-size: 0.75rem; color: var(--color-gray-600); margin-bottom: 4px;">Kosten</div>
-                            <div style="font-size: 1.1rem; font-weight: 600; color: var(--color-gray-900);">
-                                ${(bwa.kosten || 0).toLocaleString('de-DE')}€
-                            </div>
-                        </div>
-                        <div>
-                            <div style="font-size: 0.75rem; color: var(--color-gray-600); margin-bottom: 4px;">Gewinn</div>
-                            <div style="font-size: 1.1rem; font-weight: 600; color: ${profitColor};">
-                                ${(bwa.gewinn || 0).toLocaleString('de-DE')}€
-                            </div>
-                        </div>
-                        <div>
-                            <div style="font-size: 0.75rem; color: var(--color-gray-600); margin-bottom: 4px;">Marge</div>
-                            <div style="font-size: 1.1rem; font-weight: 600; color: var(--color-gray-900);">
-                                ${(bwa.gewinnmarge || 0).toFixed(1)}%
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--color-gray-200); display: flex; gap: 8px;">
-                        <button onclick="event.stopPropagation(); showBWADetails('${bwa.id}')" style="flex: 1; padding: 8px; background: var(--color-primary); color: white; border: none; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer;">
-                            Details anzeigen
-                        </button>
-                        <button onclick="event.stopPropagation(); deleteBWA('${bwa.id}')" style="padding: 8px 16px; background: #fee2e2; color: #dc2626; border: none; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer;">
-                            🗑️
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
-        // BWA-Details anzeigen
-        async function showBWADetails(bwaId) {
-            // TODO: Detailansicht mit allen Kennzahlen, Charts, etc.
-            showNotification('📊 Detail-Ansicht wird vorbereitet...', 'info');
-            console.log('Zeige BWA Details für ID:', bwaId);
-        }
-
-        // BWA löschen
-        async function deleteBWA(bwaId) {
-            if (!confirm('Möchten Sie diese BWA wirklich löschen?')) return;
-
-            try {
-                const { error } = await supabase
-                    .from('bwa_uploads')
-                    .delete()
-                    .eq('id', bwaId);
-
-                if (error) throw error;
-
-                showNotification('✅ BWA gelöscht', 'success');
-                loadBWAHistory(); // Liste neu laden
-                updateHistoryBadge();
-            } catch (error) {
-                console.error('Fehler beim Löschen:', error);
-                showNotification('❌ Löschen fehlgeschlagen', 'error');
-            }
-        }
-
-        // Trend-Vergleich anzeigen
-        function showTrendComparison() {
-            // TODO: Multi-BWA-Vergleich mit Charts
-            showNotification('📈 Trend-Vergleich wird vorbereitet...', 'info');
-        }
-
-        // Historie als PDF exportieren
-        function exportHistory() {
-            // TODO: PDF-Export
-            showNotification('📄 Export wird vorbereitet...', 'info');
-        }
-
-        // Historie filtern
-        function filterHistory() {
-            // TODO: Filter-Funktion
-            showNotification('🔍 Filter wird angewendet...', 'info');
         }
 
         function generateHistoricalData(currentData) {
@@ -3393,9 +2800,6 @@
                 loginButton.textContent = 'Jetzt anmelden';
                 loginButton.onclick = showLoginModal;
             }
-            
-            // Feature-Gating aktualisieren
-            updateFeatureGating();
         }
 
         // Login-Modal anzeigen
@@ -3860,275 +3264,11 @@
             document.body.appendChild(modal);
         }
 
-        async function upgradeToPremium() {
+        function upgradeToPremium() {
             closeModal();
-            
-            // Prüfe ob User eingeloggt ist
-            if (!currentUser.isLoggedIn) {
-                showNotification('⚠️ Bitte melde dich zuerst an', 'warning');
-                showLoginModal();
-                return;
-            }
-            
-            // Prüfe ob Stripe konfiguriert ist
-            if (typeof isStripeConfigured === 'undefined' || !isStripeConfigured()) {
-                showNotification('⚠️ Zahlungssystem nicht konfiguriert', 'error');
-                console.error('Stripe nicht konfiguriert. Siehe STRIPE_SETUP.md');
-                return;
-            }
-            
             showNotification('💳 Zahlungsseite wird vorbereitet...', 'info');
-            
-            try {
-                // Stripe initialisieren falls noch nicht geschehen
-                if (!stripe) {
-                    await initializeStripe();
-                }
-                
-                if (!stripe) {
-                    throw new Error('Stripe konnte nicht initialisiert werden');
-                }
-                
-                // Checkout Session erstellen (via Supabase Edge Function)
-                const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-                    body: {
-                        userId: currentUser.id,
-                        userEmail: currentUser.email,
-                        priceId: STRIPE_CONFIG.premiumPriceId
-                    }
-                });
-                
-                if (error) {
-                    throw error;
-                }
-                
-                if (!data || !data.sessionId) {
-                    throw new Error('Keine Session-ID erhalten');
-                }
-                
-                // Redirect zu Stripe Checkout
-                const result = await stripe.redirectToCheckout({
-                    sessionId: data.sessionId
-                });
-                
-                if (result.error) {
-                    throw result.error;
-                }
-                
-            } catch (error) {
-                console.error('Checkout-Fehler:', error);
-                showNotification('❌ Fehler beim Öffnen der Zahlungsseite: ' + error.message, 'error');
-            }
-        }
-
-        // ============================================
-        // FEATURE-GATING: PREMIUM-OVERLAY ANWENDEN
-        // ============================================
-
-        function applyFeatureGating() {
-            // Analytics-Bereich prüfen
-            applyPremiumGate('analytics', 'analyticsContainer');
-            
-            // Empfehlungen-Bereich prüfen
-            applyPremiumGate('recommendations', 'recommendationsContainer');
-        }
-
-        function applyPremiumGate(feature, containerId) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-
-            // Prüfe ob User Zugriff hat
-            const hasAccess = canAccessFeature(feature);
-
-            // Entferne altes Overlay falls vorhanden
-            const existingOverlay = container.querySelector('.premium-overlay');
-            if (existingOverlay) {
-                existingOverlay.remove();
-                container.classList.remove('premium-locked');
-            }
-
-            // Wenn kein Zugriff: Premium-Overlay hinzufügen
-            if (!hasAccess) {
-                container.classList.add('premium-locked');
-                
-                const featureInfo = {
-                    'analytics': {
-                        title: 'Advanced Analytics',
-                        description: 'Tiefgehende Unternehmensanalyse mit KI-gestützten Insights',
-                        features: [
-                            'Detaillierte Umsatzanalyse',
-                            'Kostenstruktur-Optimierung',
-                            'Profitabilitäts-Tracking',
-                            'Erweiterte Branchen-Benchmarks',
-                            'Predictive Analytics'
-                        ]
-                    },
-                    'recommendations': {
-                        title: 'KI-Empfehlungen',
-                        description: 'Intelligente Handlungsempfehlungen für Ihr Business',
-                        features: [
-                            'Personalisierte Geschäftsempfehlungen',
-                            'Priorisierte Aktionspläne',
-                            'Best-Practice-Strategien',
-                            'Automatische Optimierungsvorschläge',
-                            'Erfolgs-Tracking'
-                        ]
-                    }
-                };
-
-                const info = featureInfo[feature];
-                
-                // Overlay erstellen
-                const overlay = document.createElement('div');
-                overlay.className = 'premium-overlay';
-                
-                if (!currentUser.isLoggedIn) {
-                    // Nicht eingeloggt: Zeige Login-Prompt
-                    overlay.innerHTML = `
-                        <div class="premium-badge">
-                            ⭐ Premium Feature
-                        </div>
-                        <h2>${info.title}</h2>
-                        <p>${info.description}</p>
-                        <div class="premium-features">
-                            <ul>
-                                ${info.features.map(f => `<li>${f}</li>`).join('')}
-                            </ul>
-                        </div>
-                        <p style="font-size: 0.95rem; margin-bottom: 16px;">
-                            Melden Sie sich an, um Premium-Features zu nutzen
-                        </p>
-                        <button class="login-prompt-button" onclick="event.stopPropagation(); showLoginModal();">
-                            Jetzt kostenlos anmelden
-                        </button>
-                    `;
-                } else {
-                    // Eingeloggt aber nicht Premium: Zeige Upgrade-Prompt
-                    overlay.innerHTML = `
-                        <div class="premium-badge">
-                            ⭐ Premium Feature
-                        </div>
-                        <h2>${info.title}</h2>
-                        <p>${info.description}</p>
-                        <div class="premium-features">
-                            <ul>
-                                ${info.features.map(f => `<li>${f}</li>`).join('')}
-                            </ul>
-                        </div>
-                        <div class="premium-price">
-                            14,99€ <small>/ Monat</small>
-                        </div>
-                        <button class="upgrade-button" onclick="event.stopPropagation(); upgradeToPremium();">
-                            Jetzt auf Premium upgraden
-                        </button>
-                        <p style="color: rgba(255, 255, 255, 0.8); font-size: 0.85rem; margin-top: 12px;">
-                            Jederzeit kündbar • Keine versteckten Kosten
-                        </p>
-                    `;
-                }
-
-                // Event-Handler für Overlay-Click
-                overlay.addEventListener('click', (e) => {
-                    if (e.target === overlay) {
-                        if (!currentUser.isLoggedIn) {
-                            showLoginModal();
-                        } else {
-                            upgradeToPremium();
-                        }
-                    }
-                });
-
-                container.appendChild(overlay);
-            }
-        }
-
-        // Feature-Gating aktualisieren wenn User-Status sich ändert
-        function updateFeatureGating() {
-            applyFeatureGating();
-        }
-
-        // ============================================
-        // PAYMENT CALLBACK HANDLING
-        // ============================================
-
-        /**
-         * Verarbeitet Stripe Payment Callbacks
-         * Wird nach Redirect von Stripe Checkout aufgerufen
-         */
-        function handlePaymentCallback() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const paymentStatus = urlParams.get('payment');
-            const sessionId = urlParams.get('session_id');
-
-            if (paymentStatus === 'success') {
-                // Erfolgreiche Zahlung
-                showNotification('🎉 Zahlung erfolgreich! Willkommen bei Premium!', 'success');
-                
-                // Session-ID für Verification loggen
-                if (sessionId) {
-                    console.log('✅ Payment Session ID:', sessionId);
-                }
-                
-                // User-Profil neu laden (Tier wurde durch Webhook aktualisiert)
-                if (currentUser.isLoggedIn) {
-                    setTimeout(async () => {
-                        await loadUserProfile();
-                        updateUserInterface();
-                        showNotification('✨ Premium-Features sind jetzt freigeschaltet!', 'success');
-                    }, 2000); // 2 Sekunden warten damit Webhook Zeit hat
-                }
-                
-                // URL-Parameter entfernen (für saubere URL)
-                window.history.replaceState({}, document.title, window.location.pathname);
-                
-            } else if (paymentStatus === 'cancelled') {
-                // Abgebrochene Zahlung
-                showNotification('ℹ️ Zahlung abgebrochen', 'info');
-                
-                // URL-Parameter entfernen
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-        }
-
-        /**
-         * Öffnet das Stripe Customer Portal für Subscription-Verwaltung
-         * User kann dort:
-         * - Rechnungen herunterladen
-         * - Zahlungsmethode ändern
-         * - Subscription kündigen
-         */
-        async function openCustomerPortal() {
-            if (!currentUser.isLoggedIn) {
-                showNotification('⚠️ Bitte melde dich zuerst an', 'warning');
-                return;
-            }
-
-            if (currentUser.tier !== 'premium') {
-                showNotification('ℹ️ Du hast aktuell keine Premium-Subscription', 'info');
-                return;
-            }
-
-            showNotification('🔄 Portal wird geladen...', 'info');
-
-            try {
-                const { data, error } = await supabase.functions.invoke('create-portal-session', {
-                    body: {
-                        returnUrl: window.location.href
-                    }
-                });
-
-                if (error) throw error;
-
-                if (data?.url) {
-                    window.location.href = data.url;
-                } else {
-                    throw new Error('Keine Portal-URL erhalten');
-                }
-
-            } catch (error) {
-                console.error('Portal-Fehler:', error);
-                showNotification('❌ Fehler beim Öffnen des Portals: ' + error.message, 'error');
-            }
+            // TODO: Stripe Checkout Integration
+            console.log('Upgrade zu Premium wird initiiert');
         }
 
         // ============================================
@@ -4157,21 +3297,8 @@
                 console.log('ℹ️ supabase-config.js nicht geladen - Gast-Modus aktiv');
             }
             
-            // 2. Stripe initialisieren (falls konfiguriert)
-            if (typeof initializeStripe === 'function') {
-                await initializeStripe();
-            } else {
-                console.log('ℹ️ stripe-config.js nicht geladen - Zahlungen deaktiviert');
-            }
-            
-            // 3. Payment-Callback verarbeiten
-            handlePaymentCallback();
-            
             // 4. UI initialisieren
             updateUserInterface();
-            
-            // 5. Feature-Gating anwenden
-            applyFeatureGating();
             
             console.log('✅ BWA Insights bereit');
         });

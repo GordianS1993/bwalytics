@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Connection Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1e40af;
+            margin-bottom: 10px;
+        }
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: 600;
+        }
+        .success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+        .info {
+            background: #dbeafe;
+            color: #1e40af;
+            border-left: 4px solid #3b82f6;
+        }
+        button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Supabase Connection Test</h1>
+        <p style="color: #64748b;">Testen Sie Ihre Supabase-Konfiguration</p>
+
+        <div class="test-section">
+            <h3>Schritt 1: Konfiguration laden</h3>
+            <div id="configStatus"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Schritt 2: Supabase-Verbindung testen</h3>
+            <button onclick="testConnection()">Verbindung testen</button>
+            <div id="connectionStatus"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Schritt 3: Authentication testen</h3>
+            <button onclick="testAuth()">Auth-Status prüfen</button>
+            <div id="authStatus"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Schritt 4: Datenbank testen</h3>
+            <button onclick="testDatabase()">Datenbank-Verbindung prüfen</button>
+            <div id="dbStatus"></div>
+        </div>
+
+        <div id="errorLog"></div>
+    </div>
+
+    <!-- Supabase Config laden -->
+    <script src="supabase-config.js"></script>
+
+    <script>
+        let testResults = {
+            config: false,
+            connection: false,
+            auth: false,
+            database: false
+        };
+
+        // Schritt 1: Konfiguration prüfen
+        function checkConfig() {
+            const statusDiv = document.getElementById('configStatus');
+            
+            if (typeof SUPABASE_CONFIG === 'undefined') {
+                statusDiv.innerHTML = `<div class="status error">❌ Fehler: supabase-config.js nicht gefunden</div>`;
+                return false;
+            }
+
+            if (!SUPABASE_CONFIG.url || SUPABASE_CONFIG.url.includes('ihr-projekt')) {
+                statusDiv.innerHTML = `<div class="status error">❌ Fehler: Project URL nicht konfiguriert</div>`;
+                return false;
+            }
+
+            if (!SUPABASE_CONFIG.anonKey || SUPABASE_CONFIG.anonKey.length < 100) {
+                statusDiv.innerHTML = `<div class="status error">❌ Fehler: Anon Key nicht konfiguriert</div>`;
+                return false;
+            }
+
+            statusDiv.innerHTML = `
+                <div class="status success">✅ Konfiguration geladen</div>
+                <pre>URL: ${SUPABASE_CONFIG.url}
+Key: ${SUPABASE_CONFIG.anonKey.substring(0, 30)}...</pre>
+            `;
+            testResults.config = true;
+            return true;
+        }
+
+        // Schritt 2: Verbindung testen
+        async function testConnection() {
+            const statusDiv = document.getElementById('connectionStatus');
+            statusDiv.innerHTML = `<div class="status info">⏳ Teste Verbindung...</div>`;
+
+            try {
+                const initialized = initializeSupabase();
+                
+                if (!initialized || !supabase) {
+                    throw new Error('Supabase Client konnte nicht initialisiert werden');
+                }
+
+                // Teste ob Supabase erreichbar ist
+                const { data, error } = await supabase.auth.getSession();
+                
+                if (error && error.message !== 'Auth session missing!') {
+                    throw error;
+                }
+
+                statusDiv.innerHTML = `<div class="status success">✅ Verbindung erfolgreich</div>`;
+                testResults.connection = true;
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="status error">❌ Verbindungsfehler: ${error.message}</div>`;
+                logError('Connection Test', error);
+            }
+        }
+
+        // Schritt 3: Authentication testen
+        async function testAuth() {
+            const statusDiv = document.getElementById('authStatus');
+            statusDiv.innerHTML = `<div class="status info">⏳ Prüfe Authentication...</div>`;
+
+            try {
+                if (!supabase) {
+                    throw new Error('Supabase nicht initialisiert. Führen Sie zuerst "Verbindung testen" aus.');
+                }
+
+                const { data: { session } } = await supabase.auth.getSession();
+                
+                if (session) {
+                    statusDiv.innerHTML = `
+                        <div class="status success">✅ User ist eingeloggt</div>
+                        <pre>User: ${session.user.email}
+User ID: ${session.user.id}</pre>
+                    `;
+                } else {
+                    statusDiv.innerHTML = `
+                        <div class="status info">ℹ️ Kein User eingeloggt (normal für Test)</div>
+                        <p style="margin-top: 10px;">Authentication-System ist bereit.</p>
+                    `;
+                }
+                testResults.auth = true;
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="status error">❌ Auth-Fehler: ${error.message}</div>`;
+                logError('Auth Test', error);
+            }
+        }
+
+        // Schritt 4: Datenbank testen
+        async function testDatabase() {
+            const statusDiv = document.getElementById('dbStatus');
+            statusDiv.innerHTML = `<div class="status info">⏳ Teste Datenbank-Zugriff...</div>`;
+
+            try {
+                if (!supabase) {
+                    throw new Error('Supabase nicht initialisiert. Führen Sie zuerst "Verbindung testen" aus.');
+                }
+
+                // Teste Zugriff auf user_subscriptions Tabelle
+                const { data, error } = await supabase
+                    .from('user_subscriptions')
+                    .select('count')
+                    .limit(1);
+
+                if (error) {
+                    throw error;
+                }
+
+                statusDiv.innerHTML = `
+                    <div class="status success">✅ Datenbank-Zugriff erfolgreich</div>
+                    <p style="margin-top: 10px;">Alle Tabellen sind erreichbar.</p>
+                `;
+                testResults.database = true;
+
+                // Alle Tests erfolgreich?
+                if (testResults.config && testResults.connection && testResults.auth && testResults.database) {
+                    showSuccessMessage();
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div class="status error">❌ Datenbank-Fehler: ${error.message}</div>
+                    <p style="margin-top: 10px; color: #991b1b; font-size: 0.9rem;">
+                        Mögliche Ursachen:<br>
+                        • SQL-Schema wurde nicht ausgeführt<br>
+                        • Row-Level-Security (RLS) Policies fehlen<br>
+                        • Tabellen wurden nicht erstellt
+                    </p>
+                    <p style="margin-top: 10px;">
+                        <a href="SUPABASE_SETUP.md" target="_blank" style="color: #1e40af; font-weight: 600;">
+                            → Siehe SUPABASE_SETUP.md
+                        </a>
+                    </p>
+                `;
+                logError('Database Test', error);
+            }
+        }
+
+        function showSuccessMessage() {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'status success';
+            successDiv.style.marginTop = '30px';
+            successDiv.style.fontSize = '1.1rem';
+            successDiv.innerHTML = `
+                🎉 <strong>Alle Tests erfolgreich!</strong><br>
+                <span style="font-size: 0.95rem;">Ihr Supabase-Backend ist bereit für das BWA-Dashboard.</span>
+            `;
+            document.querySelector('.container').appendChild(successDiv);
+        }
+
+        function logError(context, error) {
+            const errorLog = document.getElementById('errorLog');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'test-section';
+            errorDiv.innerHTML = `
+                <h3 style="color: #dc2626;">Debug-Informationen (${context})</h3>
+                <pre>${JSON.stringify(error, null, 2)}</pre>
+            `;
+            errorLog.appendChild(errorDiv);
+        }
+
+        // Auto-Test beim Laden
+        window.onload = function() {
+            checkConfig();
+        };
+    </script>
+</body>
+</html>
