@@ -3226,10 +3226,10 @@
 
                             <!-- Branchen-Benchmark -->
                             <div class="chart-container" style="margin-top: 30px;">
-                                <h3 style="margin-bottom: 20px; color: var(--color-gray-900); font-size: 18px;">Branchen-Benchmark</h3>
+                                <h3 style="margin-bottom: 20px; color: var(--color-gray-900); font-size: 18px; text-align: center;">Branchen-Benchmark</h3>
                                 <div style="background: white; padding: 30px; border: 1px solid var(--color-gray-200); border-radius: 12px;">
-                                    <div style="margin-bottom: 25px;">
-                                        <label style="display: block; font-weight: 500; margin-bottom: 10px; color: var(--color-gray-700);">Branche auswählen:</label>
+                                    <div style="max-width: 500px; margin: 0 auto 25px auto;">
+                                        <label style="display: block; font-weight: 500; margin-bottom: 10px; color: var(--color-gray-700); text-align: center;">Branche auswählen:</label>
                                         <select id="industrySelect" onchange="updateBenchmark()" style="width: 100%; padding: 12px; border: 1px solid var(--color-gray-300); border-radius: 8px; font-size: 1rem; cursor: pointer; background: white; color: var(--color-gray-900);">
                                             <option value="retail">Einzelhandel</option>
                                             <option value="gastro">Gastronomie</option>
@@ -3254,9 +3254,9 @@
                                                 <span id="benchmarkMargin" style="font-size: 1.2rem; font-weight: bold; color: #64748b;">—</span>
                                             </div>
                                     
-                                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 1200px; margin: 0 auto;">
                                         <!-- Gewinnmarge Vergleich -->
-                                        <div style="padding: 20px; background: var(--color-gray-50); border-radius: 12px;">
+                                        <div style="padding: 20px; background: var(--color-gray-50); border-radius: 12px; text-align: center;">
                                             <div style="font-weight: 500; color: var(--color-gray-600); margin-bottom: 15px;">Gewinnmarge</div>
                                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                                                 <span style="color: var(--color-gray-700); font-weight: 500;">Ihr Wert:</span>
@@ -3270,7 +3270,7 @@
                                         </div>
                                         
                                         <!-- Personalkosten Vergleich -->
-                                        <div style="padding: 20px; background: var(--color-gray-50); border-radius: 12px;">
+                                        <div style="padding: 20px; background: var(--color-gray-50); border-radius: 12px; text-align: center;">
                                             <div style="font-weight: 500; color: var(--color-gray-600); margin-bottom: 15px;">Personalkosten</div>
                                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                                                 <span style="color: var(--color-gray-700); font-weight: 500;">Ihr Wert:</span>
@@ -3284,7 +3284,7 @@
                                         </div>
                                         
                                         <!-- Fixkostenquote Vergleich -->
-                                        <div style="padding: 20px; background: var(--color-gray-50); border-radius: 12px;">
+                                        <div style="padding: 20px; background: var(--color-gray-50); border-radius: 12px; text-align: center;">
                                             <div style="font-weight: 500; color: var(--color-gray-600); margin-bottom: 15px;">Fixkostenquote</div>
                                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                                                 <span style="color: var(--color-gray-700); font-weight: 500;">Ihr Wert:</span>
