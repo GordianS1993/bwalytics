@@ -1522,125 +1522,68 @@
             
             console.log('✅ BWA-Struktur erkannt');
             
-            // **ADAPTIVE ZAHLENEXTRAKTION**
-            // Extrahiere ALLE Zahlen mit ihrem Kontext (5 Wörter davor)
-            const numberPattern = /([a-zäöüß\s\-]{0,80})\s*([0-9]{1,3}(?:\.[0-9]{3})*(?:,[0-9]{2})?)\s*(?:€|EUR)?/gi;
-            const allMatches = [];
-            let match;
+            // **VEREINFACHTE ABER ROBUSTE EXTRAKTION**
+            // Extrahiere alle Zahlen > 1000
+            const numbers = extractNumbersFromText(text);
+            const relevantNumbers = numbers.filter(n => n >= 1000 && n <= 100000000);
             
-            while ((match = numberPattern.exec(normalizedText)) !== null) {
-                const context = match[1].toLowerCase().trim();
-                const numberStr = match[2];
-                const value = parseGermanNumber(numberStr);
-                
-                // Nur relevante Zahlen (> 1000 EUR)
-                if (value >= 1000 && value <= 100000000) {
-                    allMatches.push({
-                        context: context,
-                        value: value,
-                        raw: match[0]
-                    });
-                }
-            }
+            console.log('📊 Gefundene relevante Zahlen:', relevantNumbers.length);
+            console.log('📊 Top 10:', relevantNumbers.slice(0, 10).map(n => n.toLocaleString('de-DE')));
             
-            console.log('📊 Gefundene relevante Zahlen mit Kontext:', allMatches.length);
-            allMatches.slice(0, 10).forEach(m => {
-                console.log(`  ${m.value.toLocaleString('de-DE')} ← "${m.context.substring(Math.max(0, m.context.length - 40))}"`);
-            });
-            
-            // **INTELLIGENTE KATEGORISIERUNG**
             let revenue = 0;
             let costs = 0;
             
-            // Umsatz-Keywords (flexible Patterns)
-            const revenueKeywords = [
-                'umsatz', 'erlöse', 'erlös', 'erträge', 'ertrag', 
-                'gesamtleistung', 'betriebserlöse', 'verkaufserlöse',
-                'umsatzerlös', 'leistung'
-            ];
+            // **INTELLIGENTE KEYWORD-SUCHE**
+            // Umsatz-Keywords
+            const revenueKeywords = ['umsatzerlöse', 'umsatz', 'erlöse', 'erträge', 'gesamtleistung'];
+            const costKeywords = ['gesamtkosten', 'betriebliche aufwendungen', 'aufwendungen', 'kosten'];
             
-            // Kosten-Keywords (flexible Patterns)  
-            const costKeywords = [
-                'gesamtkosten', 'kosten', 'aufwand', 'aufwendungen',
-                'ausgaben', 'betriebsausgaben', 'gesamtaufwand',
-                'aufwendung', 'kostenposition'
-            ];
-            
-            // Negativ-Keywords (diese Zeilen ignorieren)
-            const excludeKeywords = [
-                'anteil', 'prozent', '%', 'quote', 'bewertung',
-                'position', 'miete', 'löhne', 'gehälter', 'versicherung',
-                'zinsen', 'abschreibung', 'material', 'waren'
-            ];
-            
-            // **SCHRITT 1: Umsatz finden**
-            for (const item of allMatches) {
-                const ctx = item.context.toLowerCase();
-                
-                // Überspringe wenn Negativ-Keywords
-                if (excludeKeywords.some(kw => ctx.includes(kw))) {
-                    continue;
-                }
-                
-                // Prüfe auf Umsatz-Keywords
-                if (revenueKeywords.some(kw => ctx.includes(kw))) {
-                    console.log('💰 UMSATZ KANDIDAT:', item.value.toLocaleString('de-DE'), '←', ctx.substring(Math.max(0, ctx.length - 50)));
-                    
-                    // Nimm den ERSTEN plausiblen Match (meist der Gesamtumsatz)
-                    if (revenue === 0 || item.value > revenue * 0.8) {
-                        revenue = item.value;
-                        console.log('✅ UMSATZ gesetzt:', revenue.toLocaleString('de-DE'));
-                    }
-                    break; // Ersten Match nehmen
-                }
-            }
-            
-            // **SCHRITT 2: Kosten finden**
-            for (const item of allMatches) {
-                const ctx = item.context.toLowerCase();
-                
-                // Überspringe wenn Negativ-Keywords
-                if (excludeKeywords.some(kw => ctx.includes(kw))) {
-                    continue;
-                }
-                
-                // Prüfe auf Kosten-Keywords
-                if (costKeywords.some(kw => ctx.includes(kw))) {
-                    console.log('📊 KOSTEN KANDIDAT:', item.value.toLocaleString('de-DE'), '←', ctx.substring(Math.max(0, ctx.length - 50)));
-                    
-                    // Kosten sollten < Umsatz sein
-                    if (item.value < revenue * 0.95) {
-                        if (costs === 0 || item.value > costs * 0.8) {
-                            costs = item.value;
-                            console.log('✅ KOSTEN gesetzt:', costs.toLocaleString('de-DE'));
+            // Suche nach Keyword + nächste Zahl in den nächsten 50 Zeichen
+            for (const keyword of revenueKeywords) {
+                const idx = lowercaseText.indexOf(keyword);
+                if (idx !== -1) {
+                    const snippet = normalizedText.substring(idx, idx + 100);
+                    const match = snippet.match(/([0-9]{1,3}(?:\.[0-9]{3})*(?:,[0-9]{2})?)/);
+                    if (match) {
+                        const value = parseGermanNumber(match[1]);
+                        if (value >= 1000 && value <= 100000000) {
+                            revenue = value;
+                            console.log('💰 Umsatz gefunden:', value.toLocaleString('de-DE'), 'bei Keyword:', keyword);
+                            break;
                         }
-                        break; // Ersten Match nehmen
                     }
                 }
             }
             
-            // **SCHRITT 3: Intelligenter Fallback**
+            // Suche nach Kosten
+            for (const keyword of costKeywords) {
+                const idx = lowercaseText.indexOf(keyword);
+                if (idx !== -1) {
+                    const snippet = normalizedText.substring(idx, idx + 100);
+                    const match = snippet.match(/([0-9]{1,3}(?:\.[0-9]{3})*(?:,[0-9]{2})?)/);
+                    if (match) {
+                        const value = parseGermanNumber(match[1]);
+                        if (value >= 1000 && value <= 100000000 && value < revenue * 0.95) {
+                            costs = value;
+                            console.log('📊 Kosten gefunden:', value.toLocaleString('de-DE'), 'bei Keyword:', keyword);
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // **FALLBACK: Größte Zahlen**
             if (revenue === 0 || costs === 0) {
-                console.log('⚠️ Direkte Extraktion unvollständig, verwende intelligenten Fallback');
+                console.log('⚠️ Keyword-Suche fehlgeschlagen, verwende Fallback');
+                const sorted = relevantNumbers.sort((a, b) => b - a).filter((v, i, arr) => arr.indexOf(v) === i);
                 
-                // Sortiere Zahlen absteigend
-                const sortedValues = allMatches
-                    .map(m => m.value)
-                    .filter((v, i, arr) => arr.indexOf(v) === i) // Duplikate entfernen
-                    .sort((a, b) => b - a);
-                
-                console.log('📊 Top 5 Zahlen:', sortedValues.slice(0, 5).map(v => v.toLocaleString('de-DE')));
-                
-                if (sortedValues.length >= 2) {
-                    if (revenue === 0) {
-                        revenue = sortedValues[0];
-                        console.log('💰 Umsatz (Fallback größte Zahl):', revenue.toLocaleString('de-DE'));
-                    }
-                    if (costs === 0) {
-                        // Kosten = zweitgrößte Zahl die < 90% vom Umsatz ist
-                        costs = sortedValues.find(v => v < revenue * 0.90 && v > revenue * 0.3) || sortedValues[1];
-                        console.log('📊 Kosten (Fallback zweitgrößte):', costs.toLocaleString('de-DE'));
-                    }
+                if (revenue === 0 && sorted.length > 0) {
+                    revenue = sorted[0];
+                    console.log('💰 Umsatz (Fallback):', revenue.toLocaleString('de-DE'));
+                }
+                if (costs === 0 && sorted.length > 1) {
+                    costs = sorted.find(v => v < revenue * 0.9 && v > revenue * 0.3) || sorted[1];
+                    console.log('📊 Kosten (Fallback):', costs.toLocaleString('de-DE'));
                 }
             }
             
