@@ -1090,9 +1090,17 @@
         let uploadHistory = [];
         let isUploading = false;
         let lastUploadedFile = null;
+        
+        // State Variables (MUSS vor showSection definiert sein)
+        const currentUser = {
+            isLoggedIn: false,
+            plan: 'gast',
+            name: 'Gast',
+            avatar: null
+        };
 
-        // Navigation Functions
-        function showSection(sectionName, event) {
+        // Navigation Functions (als Window-Property für onclick-Zugriff)
+        window.showSection = function(sectionName, event) {
             console.log('🔄 showSection aufgerufen:', sectionName);
             
             // Prüfe ob Feature verfügbar ist
@@ -1668,22 +1676,6 @@
                 console.log('📊 Verwende Demo-Daten für:', filename);
                 return generateBWAData(filename);
             }
-            
-            // Plausibilitätscheck
-            if (costs > revenue * 1.5) {
-                console.log('⚠️ Kosten > 150% des Umsatzes - unplausibel, tausche Werte');
-                [revenue, costs] = [costs, revenue];
-            }
-            
-            const profit = revenue - costs;
-            const margin = ((profit / revenue) * 100).toFixed(1);
-            
-            console.log('✅ FINALE WERTE:', { 
-                revenue: revenue.toLocaleString('de-DE'), 
-                costs: costs.toLocaleString('de-DE'), 
-                profit: profit.toLocaleString('de-DE'), 
-                margin: margin + '%' 
-            });
             
             // Kostenaufschlüsselung (geschätzt)
             const personalCosts = Math.round(costs * 0.45);
