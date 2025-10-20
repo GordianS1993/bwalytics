@@ -1107,6 +1107,12 @@
         window.showSection = function(sectionName, event) {
             console.log('🔄 showSection aufgerufen:', sectionName);
             
+            // Schließe eventuell offene Modals bei Navigation
+            const existingModal = document.querySelector('.modal-overlay');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
             // Prüfe ob Feature verfügbar ist
             if (sectionName === 'history' && !currentUser.isLoggedIn) {
                 // Direkt Login-Modal anzeigen ohne orangefarbene Warnung
