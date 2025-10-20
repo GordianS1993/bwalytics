@@ -1096,7 +1096,11 @@
             isLoggedIn: false,
             plan: 'gast',
             name: 'Gast',
-            avatar: null
+            avatar: null,
+            email: null,
+            tier: 'free',
+            companyLogo: null,
+            userId: null
         };
 
         // Navigation Functions (als Window-Property für onclick-Zugriff)
@@ -3618,15 +3622,9 @@
         // AUTHENTICATION & USER MANAGEMENT SYSTEM
         // ============================================
 
-        // User-Status (wird später von Supabase befüllt)
-        let currentUser = {
-            isLoggedIn: false,
-            email: null,
-            name: 'Gast-Modus',
-            tier: 'free', // 'free' | 'basic' | 'premium'
-            companyLogo: null,
-            userId: null
-        };
+        // User-Status wird oben bereits als const definiert (Zeile 1095)
+        // Diese Duplikat-Deklaration entfernt
+        
         // ============================================
         // COMPANY LOGO UPLOAD FUNCTIONS
         // ============================================
