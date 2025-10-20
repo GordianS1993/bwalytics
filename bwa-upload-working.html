@@ -1806,8 +1806,8 @@
             }
 
             // **DUPLIKAT-PRÜFUNG**
-            const bwaHistory = JSON.parse(localStorage.getItem('bwaHistory') || '[]');
-            const isDuplicate = bwaHistory.some(bwa => bwa.filename === file.name);
+            const existingHistory = JSON.parse(localStorage.getItem('bwa-upload-history') || '[]');
+            const isDuplicate = existingHistory.some(bwa => bwa.filename === file.name);
             
             if (isDuplicate) {
                 const confirmed = confirm(
