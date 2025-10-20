@@ -920,7 +920,7 @@
                                     <div><span>•</span> Sicher verschlüsselt</div>
                                 </div>
                             </div>
-                            <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
+                            <input type="file" id="fileInput" accept=".pdf" style="display: none;">
                         </div>
                     </div>
 
@@ -1077,8 +1077,10 @@
     </div>
 
     <script>
-        // PDF.js Worker Setup
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        // PDF.js Worker Setup - nur wenn Bibliothek geladen ist
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
 
         // Globale Variablen
         let supabase = null; // Supabase Client (wird initialisiert falls supabase-config.js geladen)
