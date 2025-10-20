@@ -2833,33 +2833,58 @@
         }
 
         function generateHistoricalData(currentData) {
-            // Generiere 6 Monate historische Daten basierend auf aktuellen Werten
-            const months = ['Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober'];
-            const data = [];
+            // Lade echte historische Daten aus localStorage
+            const uploadHistory = JSON.parse(localStorage.getItem('bwa-upload-history') || '[]');
             
-            for (let i = 0; i < 6; i++) {
-                const growthFactor = 0.85 + (i * 0.03); // Simuliertes Wachstum
-                const variance = 0.95 + Math.random() * 0.1; // Zufällige Schwankung
-                
-                data.push({
-                    month: months[i],
-                    revenue: Math.round(currentData.revenue * growthFactor * variance),
-                    costs: Math.round(currentData.costs * growthFactor * variance),
-                    profit: 0 // Wird berechnet
-                });
+            // Wenn weniger als 2 BWAs vorhanden sind, return null (kein Trend möglich)
+            if (uploadHistory.length < 2) {
+                console.log('⚠️ Nicht genug historische Daten für Trend (benötigt mindestens 2 BWAs)');
+                return null;
             }
             
-            // Profit berechnen
-            data.forEach(entry => {
-                entry.profit = entry.revenue - entry.costs;
+            // Sortiere nach Datum (älteste zuerst)
+            const sortedHistory = [...uploadHistory].sort((a, b) => a.timestamp - b.timestamp);
+            
+            // Nehme die letzten 6 Einträge (oder weniger, wenn nicht vorhanden)
+            const recentHistory = sortedHistory.slice(-6);
+            
+            // Konvertiere zu Chart-Format
+            const months = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+            const data = recentHistory.map(entry => {
+                const date = new Date(entry.timestamp);
+                const monthName = months[date.getMonth()];
+                
+                return {
+                    month: `${monthName} ${date.getFullYear().toString().slice(-2)}`,
+                    revenue: entry.revenue || 0,
+                    costs: entry.costs || 0,
+                    profit: entry.profit || (entry.revenue - entry.costs)
+                };
             });
             
+            console.log(`📊 ${data.length} historische Datenpunkte für Trend geladen`);
             return data;
         }
 
         function createTrendChart(historicalData) {
             const canvas = document.getElementById('trendChart');
+            const trendContainer = document.querySelector('.chart-container'); // Trend-Container
+            
             if (!canvas) return;
+            
+            // Wenn keine historischen Daten, verstecke den Trend-Bereich
+            if (!historicalData || historicalData.length < 2) {
+                if (trendContainer) {
+                    trendContainer.style.display = 'none';
+                }
+                console.log('⚠️ Trend-Chart nicht angezeigt: Mindestens 2 BWAs benötigt');
+                return;
+            }
+            
+            // Trend-Container anzeigen
+            if (trendContainer) {
+                trendContainer.style.display = 'block';
+            }
             
             const ctx = canvas.getContext('2d');
             
@@ -2938,17 +2963,25 @@
                 }
             });
             
-            // Wachstumsraten berechnen und anzeigen
-            const lastMonth = historicalData[historicalData.length - 1];
-            const prevMonth = historicalData[historicalData.length - 2];
-            
-            const revenueGrowth = ((lastMonth.revenue - prevMonth.revenue) / prevMonth.revenue * 100).toFixed(1);
-            const costGrowth = ((lastMonth.costs - prevMonth.costs) / prevMonth.costs * 100).toFixed(1);
-            const profitGrowth = ((lastMonth.profit - prevMonth.profit) / prevMonth.profit * 100).toFixed(1);
-            
-            document.getElementById('revenueGrowth').textContent = (revenueGrowth > 0 ? '+' : '') + revenueGrowth + '%';
-            document.getElementById('costGrowth').textContent = (costGrowth > 0 ? '+' : '') + costGrowth + '%';
-            document.getElementById('profitGrowth').textContent = (profitGrowth > 0 ? '+' : '') + profitGrowth + '%';
+            // Wachstumsraten berechnen und anzeigen (nur wenn mindestens 2 Datenpunkte)
+            if (historicalData && historicalData.length >= 2) {
+                const lastMonth = historicalData[historicalData.length - 1];
+                const prevMonth = historicalData[historicalData.length - 2];
+                
+                const revenueGrowth = ((lastMonth.revenue - prevMonth.revenue) / prevMonth.revenue * 100).toFixed(1);
+                const costGrowth = ((lastMonth.costs - prevMonth.costs) / prevMonth.costs * 100).toFixed(1);
+                const profitGrowth = prevMonth.profit !== 0 
+                    ? ((lastMonth.profit - prevMonth.profit) / Math.abs(prevMonth.profit) * 100).toFixed(1)
+                    : '0.0';
+                
+                const revenueGrowthEl = document.getElementById('revenueGrowth');
+                const costGrowthEl = document.getElementById('costGrowth');
+                const profitGrowthEl = document.getElementById('profitGrowth');
+                
+                if (revenueGrowthEl) revenueGrowthEl.textContent = (revenueGrowth > 0 ? '+' : '') + revenueGrowth + '%';
+                if (costGrowthEl) costGrowthEl.textContent = (costGrowth > 0 ? '+' : '') + costGrowth + '%';
+                if (profitGrowthEl) profitGrowthEl.textContent = (profitGrowth > 0 ? '+' : '') + profitGrowth + '%';
+            }
         }
 
         function updateAllSections(bwaData, filename) {
