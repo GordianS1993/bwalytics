@@ -1510,7 +1510,9 @@
             const normalizedText = text.replace(/\s+/g, ' ');
             const lowercaseText = normalizedText.toLowerCase();
             
-            console.log('📝 Text-Auszug:', normalizedText.substring(0, 500));
+            console.log('📝 KOMPLETTER TEXT FÜR DEBUG:');
+            console.log(normalizedText);
+            console.log('📝 ===== ENDE TEXT =====');
             
             // BWA-Validierung
             const isValidBWA = /umsatz|erträge|aufwand|kosten|gewinn|verlust|betriebsergebnis|jahresüberschuss/i.test(lowercaseText);
