@@ -3228,16 +3228,16 @@
                             <div class="chart-container" style="margin-top: 30px;">
                                 <h3 style="margin-bottom: 20px; color: var(--color-gray-900); font-size: 18px; text-align: center;">Branchen-Benchmark</h3>
                                 <div style="background: white; padding: 30px; border: 1px solid var(--color-gray-200); border-radius: 12px;">
-                                    <div style="max-width: 500px; margin: 0 auto 30px auto;">
-                                        <label style="display: block; font-weight: 600; margin-bottom: 12px; color: var(--color-gray-900); text-align: center; font-size: 1rem;">Branche auswählen:</label>
-                                        <select id="industrySelect" onchange="updateBenchmark()" style="width: 100%; padding: 14px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 1rem; cursor: pointer; background: linear-gradient(to bottom, #ffffff, #f9fafb); color: var(--color-gray-900); font-weight: 500; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.1); appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23374151%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 20px; padding-right: 40px;" onmouseover="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 4px 12px rgba(59,130,246,0.15)'" onmouseout="this.style.borderColor='#e5e7eb'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)'">
-                                            <option value="retail">🛍️ Einzelhandel</option>
-                                            <option value="gastro">🍽️ Gastronomie</option>
-                                            <option value="it">💻 IT & Software</option>
-                                            <option value="consulting">💼 Beratung</option>
-                                            <option value="craft">🔧 Handwerk</option>
-                                            <option value="ecommerce">📦 E-Commerce</option>
-                                            <option value="healthcare">⚕️ Gesundheitswesen</option>
+                                    <div style="max-width: 500px; margin: 0 auto 25px auto;">
+                                        <label style="display: block; font-weight: 500; margin-bottom: 10px; color: var(--color-gray-700); text-align: center;">Branche auswählen:</label>
+                                        <select id="industrySelect" onchange="updateBenchmark()" style="width: 100%; padding: 12px; border: 1px solid var(--color-gray-300); border-radius: 8px; font-size: 1rem; cursor: pointer; background: white; color: var(--color-gray-900);">
+                                            <option value="retail">Einzelhandel</option>
+                                            <option value="gastro">Gastronomie</option>
+                                            <option value="it">IT & Software</option>
+                                            <option value="consulting">Beratung</option>
+                                            <option value="craft">Handwerk</option>
+                                            <option value="ecommerce">E-Commerce</option>
+                                            <option value="healthcare">Gesundheitswesen</option>
                                         </select>
                                     </div>
                                     
@@ -3256,45 +3256,45 @@
                                     
                                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 1200px; margin: 0 auto;">
                                         <!-- Gewinnmarge Vergleich -->
-                                        <div style="padding: 25px; background: var(--color-gray-50); border-radius: 12px; text-align: center;">
-                                            <div style="font-weight: 600; color: var(--color-gray-600); margin-bottom: 20px; font-size: 0.95rem;">Gewinnmarge</div>
-                                            <div style="margin-bottom: 15px;">
-                                                <div style="color: #3b82f6; font-weight: 500; font-size: 0.85rem; margin-bottom: 5px;">Ihr Wert:</div>
-                                                <div style="font-size: 2rem; font-weight: 700; color: #3b82f6;">${bwaData.margin}%</div>
+                                        <div style="padding: 20px; background: var(--color-gray-50); border-radius: 12px; text-align: center;">
+                                            <div style="font-weight: 500; color: var(--color-gray-600); margin-bottom: 15px;">Gewinnmarge</div>
+                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                                <span style="color: var(--color-gray-700); font-weight: 500;">Ihr Wert:</span>
+                                                <span style="font-size: 1.5rem; font-weight: 600; color: var(--color-gray-900);">${bwaData.margin}%</span>
                                             </div>
-                                            <div style="margin-bottom: 15px;">
-                                                <div style="color: var(--color-gray-600); font-size: 0.85rem; margin-bottom: 5px;">Branche Ø:</div>
-                                                <div id="benchmarkMargin" style="font-size: 1.3rem; font-weight: 600; color: var(--color-gray-700);">—</div>
+                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                                <span style="color: var(--color-gray-600);">Branche Ø:</span>
+                                                <span id="benchmarkMargin" style="font-size: 1.2rem; font-weight: 600; color: var(--color-gray-700);">—</span>
                                             </div>
-                                            <div id="marginStatus" style="padding: 10px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; margin-top: 15px; background: var(--color-gray-100); color: var(--color-gray-700);">—</div>
+                                            <div id="marginStatus" style="text-align: center; padding: 8px; border-radius: 6px; font-size: 0.9rem; font-weight: 500; margin-top: 10px; background: var(--color-gray-100); color: var(--color-gray-700);">—</div>
                                         </div>
                                         
                                         <!-- Personalkosten Vergleich -->
-                                        <div style="padding: 25px; background: var(--color-gray-50); border-radius: 12px; text-align: center;">
-                                            <div style="font-weight: 600; color: var(--color-gray-600); margin-bottom: 20px; font-size: 0.95rem;">Personalkosten</div>
-                                            <div style="margin-bottom: 15px;">
-                                                <div style="color: #8b5cf6; font-weight: 500; font-size: 0.85rem; margin-bottom: 5px;">Ihr Wert:</div>
-                                                <div style="font-size: 2rem; font-weight: 700; color: #8b5cf6;">${bwaData.personalCostRatio || 0}%</div>
+                                        <div style="padding: 20px; background: var(--color-gray-50); border-radius: 12px; text-align: center;">
+                                            <div style="font-weight: 500; color: var(--color-gray-600); margin-bottom: 15px;">Personalkosten</div>
+                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                                <span style="color: var(--color-gray-700); font-weight: 500;">Ihr Wert:</span>
+                                                <span style="font-size: 1.5rem; font-weight: 600; color: var(--color-gray-900);">${bwaData.personalCostRatio || 0}%</span>
                                             </div>
-                                            <div style="margin-bottom: 15px;">
-                                                <div style="color: var(--color-gray-600); font-size: 0.85rem; margin-bottom: 5px;">Branche Ø:</div>
-                                                <div id="benchmarkPersonal" style="font-size: 1.3rem; font-weight: 600; color: var(--color-gray-700);">—</div>
+                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                                <span style="color: var(--color-gray-600);">Branche Ø:</span>
+                                                <span id="benchmarkPersonal" style="font-size: 1.2rem; font-weight: 600; color: var(--color-gray-700);">—</span>
                                             </div>
-                                            <div id="personalStatus" style="padding: 10px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; margin-top: 15px; background: var(--color-gray-100); color: var(--color-gray-700);">—</div>
+                                            <div id="personalStatus" style="text-align: center; padding: 8px; border-radius: 6px; font-size: 0.9rem; font-weight: 500; margin-top: 10px; background: var(--color-gray-100); color: var(--color-gray-700);">—</div>
                                         </div>
                                         
                                         <!-- Fixkostenquote Vergleich -->
-                                        <div style="padding: 25px; background: var(--color-gray-50); border-radius: 12px; text-align: center;">
-                                            <div style="font-weight: 600; color: var(--color-gray-600); margin-bottom: 20px; font-size: 0.95rem;">Fixkostenquote</div>
-                                            <div style="margin-bottom: 15px;">
-                                                <div style="color: #f59e0b; font-weight: 500; font-size: 0.85rem; margin-bottom: 5px;">Ihr Wert:</div>
-                                                <div style="font-size: 2rem; font-weight: 700; color: #f59e0b;">${(((bwaData.fixedCosts || 0) / bwaData.revenue) * 100).toFixed(0)}%</div>
+                                        <div style="padding: 20px; background: var(--color-gray-50); border-radius: 12px; text-align: center;">
+                                            <div style="font-weight: 500; color: var(--color-gray-600); margin-bottom: 15px;">Fixkostenquote</div>
+                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                                <span style="color: var(--color-gray-700); font-weight: 500;">Ihr Wert:</span>
+                                                <span style="font-size: 1.5rem; font-weight: 600; color: var(--color-gray-900);">${(((bwaData.fixedCosts || 0) / bwaData.revenue) * 100).toFixed(0)}%</span>
                                             </div>
-                                            <div style="margin-bottom: 15px;">
-                                                <div style="color: var(--color-gray-600); font-size: 0.85rem; margin-bottom: 5px;">Branche Ø:</div>
-                                                <div id="benchmarkFixed" style="font-size: 1.3rem; font-weight: 600; color: var(--color-gray-700);">—</div>
+                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                                <span style="color: var(--color-gray-600);">Branche Ø:</span>
+                                                <span id="benchmarkFixed" style="font-size: 1.2rem; font-weight: 600; color: var(--color-gray-700);">—</span>
                                             </div>
-                                            <div id="fixedStatus" style="padding: 10px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; margin-top: 15px; background: var(--color-gray-100); color: var(--color-gray-700);">—</div>
+                                            <div id="fixedStatus" style="text-align: center; padding: 8px; border-radius: 6px; font-size: 0.9rem; font-weight: 500; margin-top: 10px; background: var(--color-gray-100); color: var(--color-gray-700);">—</div>
                                         </div>
                                     </div>
                                 </div>
