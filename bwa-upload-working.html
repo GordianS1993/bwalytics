@@ -1374,6 +1374,182 @@
             const changeText = (profitChange > 0 ? '+' : '') + profitChange + '% zum Original';
             changeElement.textContent = changeText;
             changeElement.style.color = profitChange > 0 ? '#4ade80' : profitChange < 0 ? '#f87171' : 'white';
+            
+            // **NEUE FUNKTION: Dynamische Empfehlungen generieren**
+            generateScenarioRecommendations(revenueChange, costChange, scenarioBaseData);
+        }
+        
+        // Intelligente Handlungsempfehlungen basierend auf Szenario
+        function generateScenarioRecommendations(revenueChange, costChange, baseData) {
+            const recommendationsContainer = document.getElementById('scenarioRecommendations');
+            const recommendationsList = document.getElementById('scenarioRecommendationsList');
+            
+            // Wenn keine Änderung, verstecke Empfehlungen
+            if (revenueChange === 0 && costChange === 0) {
+                recommendationsContainer.style.display = 'none';
+                return;
+            }
+            
+            recommendationsContainer.style.display = 'block';
+            const recommendations = [];
+            
+            // **UMSATZ-STEIGERUNG EMPFEHLUNGEN**
+            if (revenueChange > 0) {
+                if (revenueChange >= 30) {
+                    recommendations.push({
+                        icon: '🚀',
+                        title: `Umsatz +${revenueChange}% erreichen`,
+                        actions: [
+                            'Neue Vertriebskanäle erschließen (Online-Shop, Marktplätze)',
+                            'Zusätzliches Verkaufspersonal einstellen',
+                            'Produktportfolio erweitern (Upselling/Cross-Selling)',
+                            'Marketing-Budget erhöhen (Google Ads, Social Media)',
+                            'Premium-Produktlinie einführen'
+                        ]
+                    });
+                } else if (revenueChange >= 15) {
+                    recommendations.push({
+                        icon: '📈',
+                        title: `Umsatz +${revenueChange}% erreichen`,
+                        actions: [
+                            'Bestehende Kunden reaktivieren (E-Mail-Kampagnen)',
+                            'Preise optimieren (+5-10% bei Premium-Produkten)',
+                            'Empfehlungsprogramm einführen',
+                            'Social Media Präsenz ausbauen',
+                            'Lokale Partnerschaften eingehen'
+                        ]
+                    });
+                } else {
+                    recommendations.push({
+                        icon: '💰',
+                        title: `Umsatz +${revenueChange}% erreichen`,
+                        actions: [
+                            'Kundenservice verbessern (Kundenbindung)',
+                            'Schnellere Reaktionszeiten bei Anfragen',
+                            'Treueprogramm für Stammkunden',
+                            'Saisonale Aktionen planen',
+                            'Produktqualität optimieren'
+                        ]
+                    });
+                }
+            }
+            
+            // **UMSATZ-RÜCKGANG ABSICHERN**
+            if (revenueChange < 0) {
+                const absChange = Math.abs(revenueChange);
+                recommendations.push({
+                    icon: '🛡️',
+                    title: `Umsatzrückgang -${absChange}% abfedern`,
+                    actions: [
+                        'Liquiditätsreserven aufbauen (3-6 Monatsausgaben)',
+                        'Fixkosten in variable Kosten umwandeln',
+                        'Diversifizierung: Neue Einnahmequellen erschließen',
+                        'Kerngeschäft fokussieren, Nebengeschäfte prüfen',
+                        'Kreditlinien/Factoring vorbereiten'
+                    ]
+                });
+            }
+            
+            // **KOSTEN-REDUKTION EMPFEHLUNGEN**
+            if (costChange < 0) {
+                const absChange = Math.abs(costChange);
+                if (absChange >= 20) {
+                    recommendations.push({
+                        icon: '✂️',
+                        title: `Kosten um ${absChange}% senken`,
+                        actions: [
+                            'Personalkosten: Teilzeit, Freiberufler statt Festanstellung',
+                            'Bürofläche reduzieren oder Remote-Work',
+                            'Lieferanten neu verhandeln (Mengenrabatte)',
+                            'Software-Abos konsolidieren, ungenutztes kündigen',
+                            'Energiekosten optimieren (LED, Zeitschaltungen)',
+                            'Outsourcing nicht-kritischer Aufgaben'
+                        ]
+                    });
+                } else if (absChange >= 10) {
+                    recommendations.push({
+                        icon: '💡',
+                        title: `Kosten um ${absChange}% senken`,
+                        actions: [
+                            'Prozesse digitalisieren (Zeitersparnis)',
+                            'Günstigere Alternativen für Materialien prüfen',
+                            'Marketing-Ausgaben auf ROI-starke Kanäle fokussieren',
+                            'Versicherungen vergleichen und wechseln',
+                            'Strom/Gas-Anbieter wechseln'
+                        ]
+                    });
+                } else {
+                    recommendations.push({
+                        icon: '🔍',
+                        title: `Kosten um ${absChange}% senken`,
+                        actions: [
+                            'Kleine Ausgaben tracken (Coffee, Snacks, etc.)',
+                            'Abonnements kritisch prüfen',
+                            'Lagerbestand optimieren (weniger Kapitalbindung)',
+                            'Reisekosten reduzieren (Video-Calls)',
+                            'Büromaterial-Einkauf bündeln'
+                        ]
+                    });
+                }
+            }
+            
+            // **KOSTEN-ERHÖHUNG BEGRÜNDEN**
+            if (costChange > 0) {
+                recommendations.push({
+                    icon: '⚠️',
+                    title: `Kosten um +${costChange}% erhöhen`,
+                    actions: [
+                        'Sicherstellen: Kostensteigerung führt zu höherem Umsatz',
+                        'Investitionen in Marketing/Vertrieb priorisieren',
+                        'Qualifiziertes Personal einstellen (höhere Produktivität)',
+                        'Technologie-Investitionen für Automatisierung',
+                        'Kennzahlen tracken: ROI jeder Kosten-Erhöhung'
+                    ]
+                });
+            }
+            
+            // **KOMBINATIONS-EMPFEHLUNGEN**
+            if (revenueChange > 20 && costChange > 10) {
+                recommendations.push({
+                    icon: '⚖️',
+                    title: 'Wachstum mit Kostenkontrolle',
+                    actions: [
+                        'Skalierbare Systeme einsetzen (Cloud statt Hardware)',
+                        'Automatisierung vor Personaleinstieg',
+                        'Variable Vergütung einführen (erfolgsabhängig)',
+                        'Lean-Prinzipien: Verschwendung eliminieren',
+                        'KPIs definieren: Umsatz pro Mitarbeiter tracken'
+                    ]
+                });
+            }
+            
+            // HTML generieren
+            let html = '';
+            recommendations.forEach(rec => {
+                html += `
+                    <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.2);">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                            <span style="font-size: 1.3rem;">${rec.icon}</span>
+                            <strong style="font-size: 1.05rem;">${rec.title}</strong>
+                        </div>
+                        <ul style="margin: 0; padding-left: 25px; list-style: none;">
+                            ${rec.actions.map(action => `
+                                <li style="margin-bottom: 8px; position: relative; padding-left: 15px;">
+                                    <span style="position: absolute; left: 0; color: #4ade80;">✓</span>
+                                    ${action}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            });
+            
+            // Letzte Border entfernen
+            if (recommendations.length > 0) {
+                html = html.replace(/border-bottom[^>]*>(?![\s\S]*border-bottom)/, '>');
+            }
+            
+            recommendationsList.innerHTML = html;
         }
 
         function resetScenario() {
@@ -2836,6 +3012,17 @@
                                             <div style="font-size: 0.85rem; margin-bottom: 8px; color: rgba(255,255,255,0.9);">Neuer Gewinn</div>
                                             <div id="scenarioProfit" style="font-size: 1.5rem; font-weight: 600; color: white;">${bwaData.profit.toLocaleString()}€</div>
                                             <div id="scenarioProfitChange" style="font-size: 0.8rem; margin-top: 5px; color: rgba(255,255,255,0.8);">—</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Dynamische Handlungsempfehlungen -->
+                                    <div id="scenarioRecommendations" style="margin-top: 25px; padding: 20px; background: rgba(255, 255, 255, 0.15); border-radius: 12px; backdrop-filter: blur(10px); display: none;">
+                                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                                            <span style="font-size: 1.5rem;">💡</span>
+                                            <h4 style="color: white; font-weight: 600; margin: 0;">Handlungsempfehlungen</h4>
+                                        </div>
+                                        <div id="scenarioRecommendationsList" style="color: rgba(255,255,255,0.95); line-height: 1.6;">
+                                            <!-- Wird dynamisch gefüllt -->
                                         </div>
                                     </div>
                                     
