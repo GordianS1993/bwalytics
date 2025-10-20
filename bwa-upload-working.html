@@ -1379,6 +1379,76 @@
             generateScenarioRecommendations(revenueChange, costChange, scenarioBaseData);
         }
         
+        // Branche aus BWA-Daten erkennen
+        function detectIndustryFromBWA(baseData) {
+            if (!baseData) return 'auto';
+            
+            const revenue = baseData.revenue || 0;
+            const costs = baseData.costs || 0;
+            const margin = baseData.margin || 0;
+            
+            // Heuristische Branchen-Erkennung basierend auf Kostenstruktur und Marge
+            if (margin > 70) return 'it'; // IT hat typisch hohe Margen
+            if (margin > 50 && costs < revenue * 0.3) return 'consulting'; // Beratung: niedrige Kosten
+            if (margin < 10 && costs > revenue * 0.8) return 'retail'; // Einzelhandel: hohe Kosten
+            if (margin < 15 && costs > revenue * 0.75) return 'gastro'; // Gastronomie: sehr hohe Kosten
+            if (margin > 30 && margin < 60) return 'craft'; // Handwerk: moderate Margen
+            if (costs > revenue * 1.2) return 'beauty'; // Beauty/Wellness bei Verlust
+            
+            return 'auto'; // Keine klare Erkennung
+        }
+        
+        // Unternehmensgröße aus Umsatz ableiten
+        function detectCompanySize(revenue) {
+            if (revenue < 50000) return 'micro';
+            if (revenue < 250000) return 'small';
+            if (revenue < 1000000) return 'medium';
+            return 'large';
+        }
+        
+        // Kontext automatisch setzen (wird beim Upload aufgerufen)
+        function initializeScenarioContext(baseData) {
+            if (!baseData) return;
+            
+            const detectedIndustry = detectIndustryFromBWA(baseData);
+            const detectedSize = detectCompanySize(baseData.revenue);
+            
+            const industrySelect = document.getElementById('industryContextSelect');
+            const sizeSelect = document.getElementById('companySizeSelect');
+            const contextInfo = document.getElementById('detectedContext');
+            
+            if (industrySelect && detectedIndustry !== 'auto') {
+                industrySelect.value = detectedIndustry;
+                
+                const industryNames = {
+                    'retail': 'Einzelhandel',
+                    'gastro': 'Gastronomie',
+                    'it': 'IT & Software',
+                    'consulting': 'Beratung',
+                    'craft': 'Handwerk',
+                    'ecommerce': 'E-Commerce',
+                    'healthcare': 'Gesundheitswesen',
+                    'beauty': 'Beauty & Wellness',
+                    'professional': 'Freiberufler'
+                };
+                
+                const sizeNames = {
+                    'micro': 'Micro (< 50k€)',
+                    'small': 'Small (50-250k€)',
+                    'medium': 'Medium (250k-1M€)',
+                    'large': 'Large (> 1M€)'
+                };
+                
+                if (contextInfo) {
+                    contextInfo.innerHTML = `✅ Erkannt: <strong>${industryNames[detectedIndustry] || 'Unbekannt'}</strong>, <strong>${sizeNames[detectedSize]}</strong> | Sie können die Auswahl manuell anpassen`;
+                }
+            }
+            
+            if (sizeSelect) {
+                sizeSelect.value = detectedSize;
+            }
+        }
+        
         // Intelligente Handlungsempfehlungen basierend auf Szenario
         function generateScenarioRecommendations(revenueChange, costChange, baseData) {
             const recommendationsContainer = document.getElementById('scenarioRecommendations');
@@ -1391,47 +1461,115 @@
             }
             
             recommendationsContainer.style.display = 'block';
+            
+            // Kontext abrufen
+            const industrySelect = document.getElementById('industryContextSelect');
+            const sizeSelect = document.getElementById('companySizeSelect');
+            
+            let industry = industrySelect ? industrySelect.value : 'auto';
+            let companySize = sizeSelect ? sizeSelect.value : 'auto';
+            
+            // Auto-Detect wenn nötig
+            if (industry === 'auto' && baseData) {
+                industry = detectIndustryFromBWA(baseData);
+            }
+            if (companySize === 'auto' && baseData) {
+                companySize = detectCompanySize(baseData.revenue);
+            }
+            
             const recommendations = [];
             
-            // **UMSATZ-STEIGERUNG EMPFEHLUNGEN**
-            if (revenueChange > 0) {
-                if (revenueChange >= 30) {
-                    recommendations.push({
-                        icon: '🚀',
-                        title: `Umsatz +${revenueChange}% erreichen`,
-                        actions: [
-                            'Neue Vertriebskanäle erschließen (Online-Shop, Marktplätze)',
-                            'Zusätzliches Verkaufspersonal einstellen',
-                            'Produktportfolio erweitern (Upselling/Cross-Selling)',
-                            'Marketing-Budget erhöhen (Google Ads, Social Media)',
-                            'Premium-Produktlinie einführen'
-                        ]
-                    });
-                } else if (revenueChange >= 15) {
-                    recommendations.push({
-                        icon: '📈',
-                        title: `Umsatz +${revenueChange}% erreichen`,
-                        actions: [
-                            'Bestehende Kunden reaktivieren (E-Mail-Kampagnen)',
-                            'Preise optimieren (+5-10% bei Premium-Produkten)',
-                            'Empfehlungsprogramm einführen',
-                            'Social Media Präsenz ausbauen',
-                            'Lokale Partnerschaften eingehen'
-                        ]
-                    });
-                } else {
-                    recommendations.push({
-                        icon: '💰',
-                        title: `Umsatz +${revenueChange}% erreichen`,
-                        actions: [
-                            'Kundenservice verbessern (Kundenbindung)',
-                            'Schnellere Reaktionszeiten bei Anfragen',
-                            'Treueprogramm für Stammkunden',
-                            'Saisonale Aktionen planen',
-                            'Produktqualität optimieren'
-                        ]
-                    });
+            // Branchenspezifische Empfehlungs-Datenbank
+            const industryRecommendations = {
+                retail: {
+                    revenueGrowth: ['Lokale Online-Präsenz ausbauen (Google My Business)', 'Click & Collect Service einführen', 'Ladenlayout optimieren (Impulskäufe)', 'Eigenmarken-Produkte entwickeln'],
+                    costCutting: ['Miete neu verhandeln oder Fläche reduzieren', 'Lagerbestand optimieren (Just-in-Time)', 'Energiekosten senken (LED, Sensoren)', 'Personal flexibel einsetzen (Teilzeit)']
+                },
+                gastro: {
+                    revenueGrowth: ['Lieferservice aufbauen (Lieferando, Wolt)', 'Events & Catering anbieten', 'Mittagsmenüs für Geschäftskunden', 'Gutschein-System etablieren'],
+                    costCutting: ['Lebensmittelverschwendung reduzieren (Portionsgrößen)', 'Lieferanten-Verträge neu verhandeln', 'Shared Kitchen / Co-Working Küche', 'Personal-Schichten optimieren (Bedarfsplanung)']
+                },
+                it: {
+                    revenueGrowth: ['SaaS-Modell statt Einmalverkauf', 'Technologie-Partnerschaften eingehen', 'Webinare & Online-Kurse anbieten', 'Freemium-Modell testen'],
+                    costCutting: ['Cloud-Infrastruktur optimieren (Reserved Instances)', 'Remote-First Team (keine Bürokosten)', 'Open Source Tools nutzen', 'Outsourcing in günstigere Regionen']
+                },
+                consulting: {
+                    revenueGrowth: ['Stundensatz erhöhen (+10-20%)', 'Produktisierte Dienstleistungen (Pakete)', 'Workshops & Trainings anbieten', 'Retainer-Modelle mit Stammkunden'],
+                    costCutting: ['Home-Office statt Büro', 'Digitale Tools statt Papier/Reisen', 'Freelancer-Netzwerk statt Festanstellung', 'Virtuelle Assistenz nutzen']
+                },
+                craft: {
+                    revenueGrowth: ['Wartungsverträge anbieten (planbare Einnahmen)', 'Notdienst mit Aufschlag', 'Spezialisierung auf Nische', 'Online-Terminbuchung einführen'],
+                    costCutting: ['Material gemeinsam einkaufen (Einkaufsgemeinschaft)', 'Werkzeug-Sharing mit Kollegen', 'Fahrzeug-Leasing optimieren', 'Azubi statt Geselle für einfache Aufgaben']
+                },
+                ecommerce: {
+                    revenueGrowth: ['Amazon/eBay zusätzlich zu eigenem Shop', 'Influencer-Marketing starten', 'Upselling & Cross-Selling automatisieren', 'Internationalisierung (EU-Länder)'],
+                    costCutting: ['Dropshipping-Modell testen', 'Fulfillment-Dienstleister vergleichen', 'Retourenquote senken (bessere Produktbeschreibungen)', 'Marketing-Automation (E-Mail-Sequences)']
+                },
+                healthcare: {
+                    revenueGrowth: ['Privatpatienten-Anteil erhöhen', 'Zusatzleistungen anbieten (IGeL)', 'Recall-System für Vorsorge', 'Online-Terminbuchung'],
+                    costCutting: ['Praxisgemeinschaft bilden (geteilte Kosten)', 'Medizinprodukte-Einkauf bündeln', 'Energie-Effizienz erhöhen', 'Digitale Patientenakte (weniger Papier)']
+                },
+                beauty: {
+                    revenueGrowth: ['Produktverkauf zusätzlich zu Treatments', 'Abo-Modelle (monatliche Treatments)', 'Mobile Services (Hausbesuche mit Aufpreis)', 'Social Media Content (Instagram, TikTok)'],
+                    costCutting: ['Produkte direkt vom Hersteller', 'Shared Salon Space (Stuhl-Miete)', 'Equipment-Leasing statt Kauf', 'Eigenmarketing statt Agentur']
+                },
+                professional: {
+                    revenueGrowth: ['Passive Income (E-Books, Kurse)', 'Mentoring & Coaching anbieten', 'Netzwerk aktivieren (Empfehlungen)', 'Eigene Tools/Templates verkaufen'],
+                    costCutting: ['Coworking statt eigenes Büro', 'All-in-One Tools statt viele Abos', 'Bartering mit anderen Freelancern', 'Versicherungen optimieren (Berufsunfähigkeit)']
                 }
+            };
+            
+            // Größenspezifische Empfehlungen
+            const sizeRecommendations = {
+                micro: {
+                    focus: 'Gründer-Produktivität maximieren, DIY-Tools, minimaler Overhead',
+                    tips: ['Zeit-Tracking einsetzen (Fokus auf profitables)', 'Ein Hauptprodukt perfektionieren', 'Persönliches Netzwerk aktivieren', 'Kostenloses Marketing (Content, SEO)']
+                },
+                small: {
+                    focus: 'Erste Systeme etablieren, selektiv einstellen, lokales Wachstum',
+                    tips: ['Erste Teilzeitkraft einstellen (Entlastung)', 'Buchhaltung outsourcen', 'CRM-System einführen', 'Lokale Google-Präsenz optimieren']
+                },
+                medium: {
+                    focus: 'Delegation, Automatisierung, Team-Management',
+                    tips: ['Führungskräfte entwickeln/einstellen', 'Prozesse dokumentieren & automatisieren', 'KPI-Dashboard aufbauen', 'Regionale Expansion prüfen']
+                },
+                large: {
+                    focus: 'Skalierung, strategische Partnerschaften, Marktexpansion',
+                    tips: ['Internationale Märkte erschließen', 'M&A-Opportunitäten prüfen', 'Management-Team professionalisieren', 'Investor Relations aufbauen']
+                }
+            };
+            
+            // **UMSATZ-STEIGERUNG EMPFEHLUNGEN (mit Kontext)**
+            if (revenueChange > 0) {
+                let actions = [];
+                
+                // Branchenspezifische Tipps hinzufügen
+                if (industry && industry !== 'auto' && industryRecommendations[industry]) {
+                    actions = actions.concat(industryRecommendations[industry].revenueGrowth.slice(0, 3));
+                }
+                
+                // Größenspezifische Tipps
+                if (companySize && companySize !== 'auto' && sizeRecommendations[companySize]) {
+                    actions.push(sizeRecommendations[companySize].tips[0]);
+                }
+                
+                // Generische Tipps als Fallback oder Ergänzung
+                if (revenueChange >= 30) {
+                    actions.push('Marketing-Budget erhöhen (Google Ads, Social Media)');
+                    actions.push('Premium-Produktlinie einführen');
+                } else if (revenueChange >= 15) {
+                    actions.push('Bestehende Kunden reaktivieren (E-Mail-Kampagnen)');
+                    actions.push('Empfehlungsprogramm einführen');
+                } else {
+                    actions.push('Kundenservice verbessern (Kundenbindung)');
+                    actions.push('Treueprogramm für Stammkunden');
+                }
+                
+                recommendations.push({
+                    icon: revenueChange >= 30 ? '🚀' : (revenueChange >= 15 ? '📈' : '💰'),
+                    title: `Umsatz +${revenueChange}% erreichen`,
+                    actions: [...new Set(actions)].slice(0, 5) // Duplikate entfernen, max 5
+                });
             }
             
             // **UMSATZ-RÜCKGANG ABSICHERN**
@@ -1450,47 +1588,41 @@
                 });
             }
             
-            // **KOSTEN-REDUKTION EMPFEHLUNGEN**
+            // **KOSTEN-REDUKTION EMPFEHLUNGEN (mit Kontext)**
             if (costChange < 0) {
                 const absChange = Math.abs(costChange);
-                if (absChange >= 20) {
-                    recommendations.push({
-                        icon: '✂️',
-                        title: `Kosten um ${absChange}% senken`,
-                        actions: [
-                            'Personalkosten: Teilzeit, Freiberufler statt Festanstellung',
-                            'Bürofläche reduzieren oder Remote-Work',
-                            'Lieferanten neu verhandeln (Mengenrabatte)',
-                            'Software-Abos konsolidieren, ungenutztes kündigen',
-                            'Energiekosten optimieren (LED, Zeitschaltungen)',
-                            'Outsourcing nicht-kritischer Aufgaben'
-                        ]
-                    });
-                } else if (absChange >= 10) {
-                    recommendations.push({
-                        icon: '💡',
-                        title: `Kosten um ${absChange}% senken`,
-                        actions: [
-                            'Prozesse digitalisieren (Zeitersparnis)',
-                            'Günstigere Alternativen für Materialien prüfen',
-                            'Marketing-Ausgaben auf ROI-starke Kanäle fokussieren',
-                            'Versicherungen vergleichen und wechseln',
-                            'Strom/Gas-Anbieter wechseln'
-                        ]
-                    });
-                } else {
-                    recommendations.push({
-                        icon: '🔍',
-                        title: `Kosten um ${absChange}% senken`,
-                        actions: [
-                            'Kleine Ausgaben tracken (Coffee, Snacks, etc.)',
-                            'Abonnements kritisch prüfen',
-                            'Lagerbestand optimieren (weniger Kapitalbindung)',
-                            'Reisekosten reduzieren (Video-Calls)',
-                            'Büromaterial-Einkauf bündeln'
-                        ]
-                    });
+                let actions = [];
+                
+                // Branchenspezifische Kostenspar-Tipps
+                if (industry && industry !== 'auto' && industryRecommendations[industry]) {
+                    actions = actions.concat(industryRecommendations[industry].costCutting.slice(0, 3));
                 }
+                
+                // Größenspezifische Tipps
+                if (companySize && companySize !== 'auto' && sizeRecommendations[companySize]) {
+                    actions.push(sizeRecommendations[companySize].tips[1] || sizeRecommendations[companySize].tips[0]);
+                }
+                
+                // Generische Tipps basierend auf Intensität
+                if (absChange >= 20) {
+                    actions.push('Personalkosten: Teilzeit, Freiberufler statt Festanstellung');
+                    actions.push('Software-Abos konsolidieren, ungenutztes kündigen');
+                    actions.push('Energiekosten optimieren (LED, Zeitschaltungen)');
+                } else if (absChange >= 10) {
+                    actions.push('Prozesse digitalisieren (Zeitersparnis)');
+                    actions.push('Versicherungen vergleichen und wechseln');
+                    actions.push('Strom/Gas-Anbieter wechseln');
+                } else {
+                    actions.push('Kleine Ausgaben tracken (Coffee, Snacks, etc.)');
+                    actions.push('Abonnements kritisch prüfen');
+                    actions.push('Reisekosten reduzieren (Video-Calls)');
+                }
+                
+                recommendations.push({
+                    icon: absChange >= 20 ? '✂️' : (absChange >= 10 ? '💡' : '🔍'),
+                    title: `Kosten um ${absChange}% senken`,
+                    actions: [...new Set(actions)].slice(0, 6) // Duplikate entfernen, max 6
+                });
             }
             
             // **KOSTEN-ERHÖHUNG BEGRÜNDEN**
@@ -2127,6 +2259,9 @@
             updateDashboard(bwaData);
             updateAllSections(bwaData, file.name);
             displayHistory();
+            
+            // Kontext für Szenario-Tool initialisieren
+            initializeScenarioContext(bwaData);
 
             isUploading = false;
             showNotification('✅ BWA erfolgreich analysiert!', 'success');
@@ -3021,6 +3156,55 @@
                                             <span style="font-size: 1.5rem;">💡</span>
                                             <h4 style="color: white; font-weight: 600; margin: 0;">Handlungsempfehlungen</h4>
                                         </div>
+                                        
+                                        <!-- Branchen- und Kontext-Auswahl -->
+                                        <div style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                                <div>
+                                                    <label style="display: block; color: rgba(255,255,255,0.9); font-size: 0.9rem; margin-bottom: 8px; font-weight: 500;">
+                                                        🏢 Ihre Branche
+                                                    </label>
+                                                    <select id="industryContextSelect" onchange="updateScenario()" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; background: rgba(255,255,255,0.95); color: #1e293b; font-size: 0.95rem; cursor: pointer;">
+                                                        <option value="auto">🤖 Auto-Erkennung</option>
+                                                        <option value="retail">🛍️ Einzelhandel</option>
+                                                        <option value="gastro">🍽️ Gastronomie</option>
+                                                        <option value="it">💻 IT & Software</option>
+                                                        <option value="consulting">💼 Beratung</option>
+                                                        <option value="craft">🔧 Handwerk</option>
+                                                        <option value="ecommerce">📦 E-Commerce</option>
+                                                        <option value="healthcare">⚕️ Gesundheitswesen</option>
+                                                        <option value="beauty">💇 Beauty & Wellness</option>
+                                                        <option value="professional">📋 Freiberufler</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label style="display: block; color: rgba(255,255,255,0.9); font-size: 0.9rem; margin-bottom: 8px; font-weight: 500;">
+                                                        📊 Unternehmensgröße
+                                                    </label>
+                                                    <select id="companySizeSelect" onchange="updateScenario()" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; background: rgba(255,255,255,0.95); color: #1e293b; font-size: 0.95rem; cursor: pointer;">
+                                                        <option value="auto">🤖 Auto-Erkennung</option>
+                                                        <option value="micro">< 50k€ (Micro)</option>
+                                                        <option value="small">50-250k€ (Small)</option>
+                                                        <option value="medium">250k-1M€ (Medium)</option>
+                                                        <option value="large">> 1M€ (Large)</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div style="margin-top: 10px; padding: 8px; background: rgba(59, 130, 246, 0.2); border-radius: 4px; font-size: 0.85rem; color: rgba(255,255,255,0.9);">
+                                                ℹ️ <span id="detectedContext">Branche und Größe werden automatisch aus Ihrer BWA erkannt</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Disclaimer -->
+                                        <div style="background: rgba(251, 191, 36, 0.15); border-left: 3px solid #fbbf24; padding: 12px 15px; border-radius: 6px; margin-bottom: 20px;">
+                                            <div style="display: flex; align-items: start; gap: 10px;">
+                                                <span style="font-size: 1.2rem; flex-shrink: 0;">⚠️</span>
+                                                <div style="font-size: 0.9rem; color: rgba(255,255,255,0.95); line-height: 1.5;">
+                                                    Diese Empfehlungen sind <strong>allgemeine Hinweise</strong> basierend auf typischen Geschäftsszenarien. Für individuelle Beratung konsultieren Sie bitte einen Steuerberater oder Unternehmensberater.
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
                                         <div id="scenarioRecommendationsList" style="color: rgba(255,255,255,0.95); line-height: 1.6;">
                                             <!-- Wird dynamisch gefüllt -->
                                         </div>
