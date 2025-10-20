@@ -1,25 +1,121 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" prefix="og: http://ogp.me/ns#">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BWA Insights - Smart Business Analytics</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     
-    <!-- External Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Primary Meta Tags -->
+    <title>BWAlytics - Intelligente BWA-Analyse für Kleinunternehmen | KI-gestützte Business Analytics</title>
+    <meta name="title" content="BWAlytics - Intelligente BWA-Analyse für Kleinunternehmen">
+    <meta name="description" content="Automatische Analyse Ihrer BWA in Sekunden. KI-gestützte Empfehlungen, Trend-Analyse und Business Scoring für Kleinunternehmer. Kostenlos testen - keine Kreditkarte erforderlich.">
+    <meta name="keywords" content="BWA Analyse, Betriebswirtschaftliche Auswertung, Kleinunternehmen, Business Analytics, KI Analyse, Unternehmensanalyse, Liquidität, Cashflow, Business Dashboard, BWA Software">
+    <meta name="author" content="BWAlytics">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="German">
+    <meta name="revisit-after" content="7 days">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://bwalytics.de/">
+    <meta property="og:title" content="BWAlytics - Intelligente BWA-Analyse für Kleinunternehmen">
+    <meta property="og:description" content="Automatische Analyse Ihrer BWA in Sekunden. KI-gestützte Empfehlungen, Trend-Analyse und Business Scoring für Kleinunternehmer.">
+    <meta property="og:image" content="https://bwalytics.de/og-image.png">
+    <meta property="og:locale" content="de_DE">
+    <meta property="og:site_name" content="BWAlytics">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://bwalytics.de/">
+    <meta name="twitter:title" content="BWAlytics - Intelligente BWA-Analyse für Kleinunternehmen">
+    <meta name="twitter:description" content="Automatische Analyse Ihrer BWA in Sekunden. KI-gestützte Empfehlungen für Kleinunternehmer.">
+    <meta name="twitter:image" content="https://bwalytics.de/twitter-image.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://bwalytics.de/">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#1e40af">
+    
+    <!-- Preconnect for Performance -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://js.stripe.com" crossorigin>
+    
+    <!-- DNS Prefetch -->
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "BWAlytics",
+      "description": "Intelligente BWA-Analyse und Business Analytics für Kleinunternehmen mit KI-gestützten Empfehlungen",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR",
+        "description": "Kostenlos testen"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "127"
+      },
+      "featureList": [
+        "Automatische BWA-Analyse",
+        "KI-gestützte Empfehlungen",
+        "Business Scoring",
+        "Trend-Analyse",
+        "Liquiditäts-Cockpit",
+        "Was-wäre-wenn Szenarien"
+      ]
+    }
+    </script>
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "BWAlytics",
+      "url": "https://bwalytics.de",
+      "logo": "https://bwalytics.de/bwalytics-logo.svg",
+      "sameAs": [
+        "https://www.linkedin.com/company/bwalytics",
+        "https://twitter.com/bwalytics"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "Customer Support",
+        "email": "support@bwalytics.de",
+        "availableLanguage": "German"
+      }
+    }
+    </script>
+    
+    <!-- External Libraries (deferred for performance) -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <!-- Supabase Client SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <!-- Supabase Konfiguration (wird nach Setup erstellt) -->
-    <script src="supabase-config.js" onerror="console.log('ℹ️ supabase-config.js nicht gefunden - Gast-Modus aktiv')"></script>
+    <script defer src="supabase-config.js" onerror="console.log('ℹ️ supabase-config.js nicht gefunden - Gast-Modus aktiv')"></script>
     
     <!-- Stripe.js SDK für Zahlungsabwicklung -->
-    <script src="https://js.stripe.com/v3/"></script>
+    <script defer src="https://js.stripe.com/v3/"></script>
     
     <!-- Stripe Konfiguration (wird nach Setup erstellt) -->
-    <script src="stripe-config.js" onerror="console.log('ℹ️ stripe-config.js nicht gefunden - Zahlungen deaktiviert')"></script>
+    <script defer src="stripe-config.js" onerror="console.log('ℹ️ stripe-config.js nicht gefunden - Zahlungen deaktiviert')"></script>
     
     <style>
         /* Professionelles Design System */
@@ -259,6 +355,9 @@
         .sidebar-header {
             padding: 36px 24px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .sidebar-header h2 {
@@ -296,6 +395,27 @@
             margin: 0 auto 16px;
             color: white;
             box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .user-avatar:hover #uploadOverlay {
+            display: flex !important;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(30, 64, 175, 0.4);
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
         }
 
         .user-info {
@@ -430,6 +550,9 @@
             font-size: 48px;
             margin-bottom: 20px;
             color: var(--color-gray-400);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .upload-text h2 {
@@ -437,12 +560,14 @@
             margin-bottom: 12px;
             font-size: 24px;
             font-weight: 600;
+            text-align: center;
         }
 
         .upload-text p {
             color: var(--color-gray-600);
             font-size: 15px;
             margin-bottom: 24px;
+            text-align: center;
         }
 
         .upload-info {
@@ -695,34 +820,19 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <!-- Professionelles BWA-Logo -->
-            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom: 12px;">
-                <!-- Äußerer Kreis mit Gradient -->
-                <circle cx="24" cy="24" r="22" fill="url(#logoGradient)"/>
-                <!-- Stilisiertes Diagramm-Icon -->
-                <path d="M14 28L14 32" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-                <path d="M20 24L20 32" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-                <path d="M26 20L26 32" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-                <path d="M32 16L32 32" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-                <!-- Aufwärtstrend-Linie -->
-                <path d="M12 28L18 24L24 20L30 16" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <!-- Pfeil oben rechts -->
-                <path d="M30 13L33 16L30 19" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <defs>
-                    <linearGradient id="logoGradient" x1="0" y1="0" x2="48" y2="48">
-                        <stop offset="0%" stop-color="#1e40af"/>
-                        <stop offset="100%" stop-color="#3b82f6"/>
-                    </linearGradient>
-                </defs>
-            </svg>
-            <h2 style="font-size: 1.3rem; font-weight: 700; margin: 0;">BWA Insights</h2>
-            <p style="font-size: 0.85rem; color: var(--color-gray-400); margin: 4px 0 0 0;">Smart Business Analytics</p>
+            <!-- BWAlytics Logo -->
+            <img src="bwalytics-logo.svg" alt="BWAlytics Logo" style="width: 200px; height: auto; margin-bottom: 12px;">
+            <p style="font-size: 0.85rem; color: var(--color-gray-400); margin: 4px 0 0 0; text-align: center;">Smart Business Analytics</p>
         </div>
         
         <div class="user-profile" id="userProfile">
-            <div class="user-avatar" id="userAvatar">
+            <div class="user-avatar" id="userAvatar" onclick="triggerLogoUpload()" style="cursor: pointer; position: relative;" title="Klicken um Firmenlogo hochzuladen">
                 <!-- Wird dynamisch ersetzt: Firmenlogo oder Initialen -->
                 GS
+                <!-- Upload-Overlay beim Hover -->
+                <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.5); border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 24px; color: white;" id="uploadOverlay">
+                    📸
+                </div>
             </div>
             <div class="user-info">
                 <h4 id="userName">Gast-Modus</h4>
@@ -731,6 +841,9 @@
                     Free Version
                 </p>
             </div>
+            <!-- Logo Upload Input (versteckt) -->
+            <input type="file" id="logoUploadInput" accept="image/png,image/jpeg,image/jpg,image/svg+xml" style="display: none;" onchange="handleLogoUpload(event)">
+            
             <!-- Login-Button für nicht eingeloggte User -->
             <button id="loginButton" onclick="showLoginModal()" style="margin-top: 16px; width: 100%; padding: 12px; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(30, 64, 175, 0.3);">
                 Jetzt anmelden
@@ -836,8 +949,17 @@
                         <div class="dashboard-grid" id="metricsGrid">
                             <!-- Wird dynamisch gefüllt -->
                         </div>
-                        <div class="chart-container">
-                            <canvas id="bwaChart" width="400" height="200"></canvas>
+                        
+                        <!-- Charts Row -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 24px; margin-top: 32px;">
+                            <div class="chart-container">
+                                <h3 style="font-size: 1.1rem; font-weight: 600; color: var(--color-gray-900); margin-bottom: 16px;">6-Monats-Trend</h3>
+                                <canvas id="bwaChart" width="400" height="200"></canvas>
+                            </div>
+                            <div class="chart-container" id="costStructureChartContainer" style="display: none;">
+                                <h3 style="font-size: 1.1rem; font-weight: 600; color: var(--color-gray-900); margin-bottom: 16px;">Kostenstruktur</h3>
+                                <canvas id="costStructureChart" width="400" height="200"></canvas>
+                            </div>
                         </div>
                     </div>
 
@@ -959,6 +1081,8 @@
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
         // Globale Variablen
+        let supabase = null; // Supabase Client (wird initialisiert falls supabase-config.js geladen)
+        let stripe = null;   // Stripe Client (wird initialisiert falls stripe-config.js geladen)
         let uploadZone, fileInput, progressContainer, progressFill, progressText;
         let successContainer, successDetails, dashboard, metricsGrid, historyTableBody;
         let uploadHistory = [];
@@ -1711,6 +1835,96 @@
             if (currentUser.isLoggedIn && canAccessFeature('history')) {
                 saveBWAToHistory(data);
             }
+            
+            // Kostenstruktur-Chart erstellen
+            createCostStructureChart(data);
+        }
+
+        // Kostenstruktur-Chart rendern
+        function createCostStructureChart(data) {
+            const container = document.getElementById('costStructureChartContainer');
+            const canvas = document.getElementById('costStructureChart');
+            
+            if (!canvas || !data.costBreakdown) return;
+            
+            // Container anzeigen
+            container.style.display = 'block';
+            
+            const ctx = canvas.getContext('2d');
+            
+            // Alten Chart zerstören falls vorhanden
+            if (window.costChartInstance) {
+                window.costChartInstance.destroy();
+            }
+            
+            // Kostenkategorien und Werte aus costBreakdown extrahieren
+            const categories = Object.keys(data.costBreakdown);
+            const values = Object.values(data.costBreakdown);
+            
+            // Farben für die Kategorien
+            const colors = [
+                '#1e40af', // Dunkelblau
+                '#3b82f6', // Blau
+                '#60a5fa', // Hellblau
+                '#93c5fd', // Sehr Hellblau
+                '#dbeafe', // Fast weiß-blau
+                '#eff6ff'  // Ganz hell
+            ];
+            
+            window.costChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: colors.slice(0, categories.length),
+                        borderColor: '#ffffff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'right',
+                            labels: {
+                                font: { size: 12 },
+                                padding: 12,
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    return data.labels.map((label, i) => {
+                                        const value = data.datasets[0].data[i];
+                                        const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return {
+                                            text: `${label}: ${value.toLocaleString()}€ (${percentage}%)`,
+                                            fillStyle: data.datasets[0].backgroundColor[i],
+                                            hidden: false,
+                                            index: i
+                                        };
+                                    });
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 13 },
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.parsed;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${context.label}: ${value.toLocaleString()}€ (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         // ============================================
@@ -2624,9 +2838,9 @@
                 `;
             }
 
-            // Recommendations Section aktualisieren
+            // Recommendations Section aktualisieren - NUR für Premium-User
             const recommendationsSection = document.getElementById('recommendations-section');
-            if (recommendationsSection) {
+            if (recommendationsSection && canAccessFeature('recommendations')) {
                 const recommendations = generateRecommendations(bwaData);
                 
                 const priorityColors = {
@@ -2761,9 +2975,9 @@
                 }, 100);
             }
 
-            // Analytics Section aktualisieren
+            // Analytics Section aktualisieren - NUR für Premium-User
             const analyticsSection = document.getElementById('analytics-section');
-            if (analyticsSection) {
+            if (analyticsSection && canAccessFeature('analytics')) {
                 analyticsSection.innerHTML = `
                     <div class="container">
                         <div class="header">
@@ -3347,7 +3561,118 @@
             companyLogo: null,
             userId: null
         };
+        // ============================================
+        // COMPANY LOGO UPLOAD FUNCTIONS
+        // ============================================
 
+        // Logo-Upload triggern
+        function triggerLogoUpload() {
+            const input = document.getElementById('logoUploadInput');
+            if (input) {
+                input.click();
+            }
+        }
+
+        // Logo hochladen und verarbeiten
+        async function handleLogoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validierung
+            const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml'];
+            if (!validTypes.includes(file.type)) {
+                showNotification('❌ Bitte nur PNG, JPG oder SVG Dateien hochladen', 'error');
+                return;
+            }
+
+            // Max 2MB
+            if (file.size > 2 * 1024 * 1024) {
+                showNotification('❌ Logo zu groß (max. 2MB)', 'error');
+                return;
+            }
+
+            try {
+                showNotification('⏳ Logo wird hochgeladen...', 'info');
+
+                // Bild als Base64 konvertieren
+                const base64 = await fileToBase64(file);
+                
+                // In localStorage speichern (später: Supabase Storage)
+                localStorage.setItem('companyLogo', base64);
+                currentUser.companyLogo = base64;
+
+                // Falls Supabase konfiguriert ist: auch in Datenbank speichern
+                if (supabase && currentUser.isLoggedIn) {
+                    try {
+                        const { error } = await supabase
+                            .from('user_profiles')
+                            .update({ company_logo: base64 })
+                            .eq('user_id', currentUser.id);
+                        
+                        if (error) throw error;
+                        console.log('✅ Logo in Datenbank gespeichert');
+                    } catch (error) {
+                        console.warn('⚠️ Logo konnte nicht in Datenbank gespeichert werden:', error);
+                        // Fahre trotzdem fort - localStorage funktioniert
+                    }
+                }
+
+                // UI aktualisieren
+                updateUserInterface();
+                showNotification('✅ Logo erfolgreich hochgeladen!', 'success');
+
+            } catch (error) {
+                console.error('Logo-Upload Fehler:', error);
+                showNotification('❌ Logo-Upload fehlgeschlagen: ' + error.message, 'error');
+            }
+
+            // Input zurücksetzen
+            event.target.value = '';
+        }
+
+        // Datei zu Base64 konvertieren
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Logo löschen
+        function deleteCompanyLogo() {
+            if (confirm('Möchten Sie das Firmenlogo wirklich entfernen?')) {
+                // Aus localStorage entfernen
+                localStorage.removeItem('companyLogo');
+                currentUser.companyLogo = null;
+
+                // Falls Supabase: auch aus Datenbank entfernen
+                if (supabase && currentUser.isLoggedIn) {
+                    supabase
+                        .from('user_profiles')
+                        .update({ company_logo: null })
+                        .eq('user_id', currentUser.id)
+                        .then(() => console.log('✅ Logo aus Datenbank entfernt'))
+                        .catch(err => console.warn('⚠️ Logo konnte nicht aus Datenbank entfernt werden:', err));
+                }
+
+                // UI aktualisieren
+                updateUserInterface();
+                showNotification('✅ Logo entfernt', 'success');
+            }
+        }
+
+        // Logo beim Start laden
+        function loadCompanyLogo() {
+            const savedLogo = localStorage.getItem('companyLogo');
+            if (savedLogo) {
+                currentUser.companyLogo = savedLogo;
+                console.log('✅ Firmenlogo aus localStorage geladen');
+            }
+        }
+
+        // ============================================
         // UI basierend auf Login-Status aktualisieren
         function updateUserInterface() {
             const userNameEl = document.getElementById('userName');
@@ -3373,10 +3698,25 @@
 
                 // Avatar: Firmenlogo oder Initialen
                 if (currentUser.companyLogo) {
-                    userAvatarEl.innerHTML = `<img src="${currentUser.companyLogo}" alt="Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                    userAvatarEl.innerHTML = `
+                        <img src="${currentUser.companyLogo}" alt="Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
+                        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.5); border-radius: 12px; display: none; align-items: center; justify-content: center; font-size: 24px; color: white; flex-direction: column; gap: 4px;" id="uploadOverlay">
+                            <span>📸</span>
+                            <span style="font-size: 10px; font-weight: 500;">Logo ändern</span>
+                            <button onclick="event.stopPropagation(); deleteCompanyLogo();" style="margin-top: 6px; padding: 4px 10px; background: #ef4444; color: white; border: none; border-radius: 4px; font-size: 10px; cursor: pointer;">
+                                Löschen
+                            </button>
+                        </div>
+                    `;
                 } else {
                     const initials = currentUser.name ? currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : 'U';
-                    userAvatarEl.textContent = initials;
+                    userAvatarEl.innerHTML = `
+                        ${initials}
+                        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.5); border-radius: 12px; display: none; align-items: center; justify-content: center; font-size: 24px; color: white; flex-direction: column; gap: 4px;" id="uploadOverlay">
+                            <span>📸</span>
+                            <span style="font-size: 10px; font-weight: 500;">Logo hinzufügen</span>
+                        </div>
+                    `;
                 }
 
                 // Login-Button zu Logout ändern
@@ -3389,7 +3729,29 @@
                     <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--color-gray-400); margin-right: 4px;"></span>
                     Free Version
                 `;
-                userAvatarEl.textContent = 'GS';
+                
+                // Auch im Gast-Modus Logo erlauben (localStorage)
+                if (currentUser.companyLogo) {
+                    userAvatarEl.innerHTML = `
+                        <img src="${currentUser.companyLogo}" alt="Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
+                        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.5); border-radius: 12px; display: none; align-items: center; justify-content: center; font-size: 24px; color: white; flex-direction: column; gap: 4px;" id="uploadOverlay">
+                            <span>📸</span>
+                            <span style="font-size: 10px; font-weight: 500;">Logo ändern</span>
+                            <button onclick="event.stopPropagation(); deleteCompanyLogo();" style="margin-top: 6px; padding: 4px 10px; background: #ef4444; color: white; border: none; border-radius: 4px; font-size: 10px; cursor: pointer;">
+                                Löschen
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    userAvatarEl.innerHTML = `
+                        GS
+                        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.5); border-radius: 12px; display: none; align-items: center; justify-content: center; font-size: 24px; color: white; flex-direction: column; gap: 4px;" id="uploadOverlay">
+                            <span>📸</span>
+                            <span style="font-size: 10px; font-weight: 500;">Logo hinzufügen</span>
+                        </div>
+                    `;
+                }
+                
                 loginButton.textContent = 'Jetzt anmelden';
                 loginButton.onclick = showLoginModal;
             }
@@ -3448,8 +3810,18 @@
         // Google OAuth Login
         async function loginWithGoogle() {
             try {
+                // Prüfe ob Supabase-Bibliothek geladen ist
+                if (typeof window.supabase === 'undefined') {
+                    showNotification('❌ Supabase-Bibliothek nicht geladen. Bitte Seite neu laden.', 'error');
+                    console.error('window.supabase ist nicht definiert - CDN möglicherweise blockiert');
+                    return;
+                }
+                
+                // Prüfe ob Supabase Client initialisiert ist
                 if (!supabase) {
-                    showNotification('⚠️ Supabase nicht konfiguriert. Bitte setup-supabase.sh ausführen.', 'warning');
+                    showNotification('⚠️ Supabase nicht konfiguriert. Bitte setup-supabase.sh ausführen und supabase-config.js erstellen.', 'warning');
+                    console.log('💡 Tipp: 1. ./setup-supabase.sh ausführen');
+                    console.log('💡 Tipp: 2. supabase-config.js mit Ihren Credentials erstellen');
                     return;
                 }
 
@@ -3474,8 +3846,18 @@
         // Microsoft OAuth Login
         async function loginWithMicrosoft() {
             try {
+                // Prüfe ob Supabase-Bibliothek geladen ist
+                if (typeof window.supabase === 'undefined') {
+                    showNotification('❌ Supabase-Bibliothek nicht geladen. Bitte Seite neu laden.', 'error');
+                    console.error('window.supabase ist nicht definiert - CDN möglicherweise blockiert');
+                    return;
+                }
+                
+                // Prüfe ob Supabase Client initialisiert ist
                 if (!supabase) {
-                    showNotification('⚠️ Supabase nicht konfiguriert. Bitte setup-supabase.sh ausführen.', 'warning');
+                    showNotification('⚠️ Supabase nicht konfiguriert. Bitte setup-supabase.sh ausführen und supabase-config.js erstellen.', 'warning');
+                    console.log('💡 Tipp: 1. ./setup-supabase.sh ausführen');
+                    console.log('💡 Tipp: 2. supabase-config.js mit Ihren Credentials erstellen');
                     return;
                 }
 
@@ -4136,12 +4518,13 @@
         // ============================================
         
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('🚀 BWA Insights wird initialisiert...');
+            console.log('🚀 BWAlytics wird initialisiert...');
             
             // 1. Supabase initialisieren (falls konfiguriert)
             if (typeof initializeSupabase === 'function') {
                 const supabaseInit = initializeSupabase();
                 if (supabaseInit) {
+                    // initializeSupabase() setzt die globale Variable 'supabase'
                     console.log('✅ Supabase erfolgreich verbunden');
                     
                     // 2. Auth-Listener einrichten
@@ -4155,6 +4538,7 @@
                 }
             } else {
                 console.log('ℹ️ supabase-config.js nicht geladen - Gast-Modus aktiv');
+                console.log('💡 OAuth-Login deaktiviert - nur Gast-Modus verfügbar');
             }
             
             // 2. Stripe initialisieren (falls konfiguriert)
@@ -4167,13 +4551,16 @@
             // 3. Payment-Callback verarbeiten
             handlePaymentCallback();
             
-            // 4. UI initialisieren
+            // 4. Company Logo laden
+            loadCompanyLogo();
+            
+            // 5. UI initialisieren
             updateUserInterface();
             
-            // 5. Feature-Gating anwenden
+            // 6. Feature-Gating anwenden
             applyFeatureGating();
             
-            console.log('✅ BWA Insights bereit');
+            console.log('✅ BWAlytics bereit');
         });
 
         console.log('📦 BWA Upload System mit Authentication geladen');

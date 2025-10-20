@@ -1,0 +1,66 @@
+{
+  "name": "BWA Insights - Smart Business Analytics",
+  "short_name": "BWA Insights",
+  "description": "Intelligente BWA-Analyse für Kleinunternehmen mit KI-gestützten Empfehlungen",
+  "start_url": "/bwa-upload-working.html",
+  "display": "standalone",
+  "background_color": "#1e293b",
+  "theme_color": "#1e40af",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": [
+    "business",
+    "finance",
+    "productivity"
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-dashboard.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "label": "Dashboard mit KPI-Übersicht"
+    },
+    {
+      "src": "/screenshot-analytics.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "label": "Analytics und Trends"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "BWA Upload",
+      "short_name": "Upload",
+      "description": "Neue BWA hochladen",
+      "url": "/bwa-upload-working.html#upload",
+      "icons": [{ "src": "/icon-upload.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Dashboard anzeigen",
+      "url": "/bwa-upload-working.html#dashboard",
+      "icons": [{ "src": "/icon-dashboard.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Historie",
+      "short_name": "Historie",
+      "description": "BWA-Historie ansehen",
+      "url": "/bwa-upload-working.html#history",
+      "icons": [{ "src": "/icon-history.png", "sizes": "96x96" }]
+    }
+  ]
+}

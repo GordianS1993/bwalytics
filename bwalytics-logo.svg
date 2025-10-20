@@ -1,0 +1,23 @@
+<svg width="280" height="120" viewBox="0 0 280 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Isometric Box Icon - zentriert oben -->
+  <g transform="translate(90, 15)">
+    <!-- Front face (dunkelblau) -->
+    <path d="M 20 18 L 40 30 L 40 54 L 20 42 Z" fill="#0F3D5C"/>
+    <!-- Top face (hellblau) -->
+    <path d="M 20 18 L 40 6 L 60 18 L 40 30 Z" fill="#0EA5E9"/>
+    <!-- Right face (mittelblau) -->
+    <path d="M 40 30 L 60 18 L 60 42 L 40 54 Z" fill="#0369A1"/>
+    
+    <!-- Key/Lock circle icon (cyan) -->
+    <g transform="translate(65, 30)">
+      <circle cx="0" cy="0" r="12" fill="none" stroke="#0EA5E9" stroke-width="4"/>
+      <circle cx="0" cy="0" r="5" fill="none" stroke="#0EA5E9" stroke-width="3"/>
+    </g>
+  </g>
+  
+  <!-- Text: BWAlytics - zentriert unten -->
+  <g transform="translate(140, 95)" text-anchor="middle">
+    <text x="-55" y="0" font-family="'Arial Black', Arial, sans-serif" font-size="36" font-weight="900" fill="#0F3D5C">BWA</text>
+    <text x="45" y="0" font-family="'Arial Black', Arial, sans-serif" font-size="36" font-weight="900" fill="#0EA5E9">lytics</text>
+  </g>
+</svg>

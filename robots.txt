@@ -1,0 +1,29 @@
+# robots.txt für BWA Insights
+# Erlaubt allen Suchmaschinen-Bots den Zugriff
+
+User-agent: *
+Allow: /
+
+# Sitemap Location
+Sitemap: https://bwa-insights.de/sitemap.xml
+
+# Wichtige Seiten priorisieren
+Allow: /bwa-upload-working.html
+Allow: /Version*.html
+
+# Private/Konfigurationsdateien blockieren
+Disallow: /supabase-config.js
+Disallow: /stripe-config.js
+Disallow: /*-config.js
+Disallow: /setup-*.sh
+Disallow: /test-*.html
+
+# Spezielle Bot-Regeln
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Crawl-Delay für schonenden Zugriff
+Crawl-delay: 1
