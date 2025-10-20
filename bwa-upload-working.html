@@ -795,8 +795,8 @@
         .modal-overlay {
             position: fixed;
             top: 0;
-            left: 0;
-            width: 100vw;
+            left: 250px; /* Sidebar-Breite ausschließen */
+            width: calc(100vw - 250px); /* Sidebar-Breite abziehen */
             height: 100vh;
             background: rgba(0, 0, 0, 0.5);
             display: flex;
@@ -1109,8 +1109,8 @@
             
             // Prüfe ob Feature verfügbar ist
             if (sectionName === 'history' && !currentUser.isLoggedIn) {
-                showNotification('⚠️ Bitte melden Sie sich an, um die Historie zu nutzen', 'warning');
-                setTimeout(() => showLoginModal(), 500);
+                // Direkt Login-Modal anzeigen ohne orangefarbene Warnung
+                showLoginModal();
                 return;
             }
             
