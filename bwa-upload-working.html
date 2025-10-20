@@ -14,10 +14,6 @@
     <meta name="robots" content="index, follow">
     <meta name="language" content="German">
     <meta name="revisit-after" content="7 days">
-    <meta name="version" content="4.1-debug">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
@@ -924,7 +920,7 @@
                                     <div><span>•</span> Sicher verschlüsselt</div>
                                 </div>
                             </div>
-                            <input type="file" id="fileInput" accept=".xlsx,.xls,.pdf" style="display: none;">
+                            <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
                         </div>
                     </div>
 
@@ -1140,7 +1136,6 @@
         // DOM Ready
         document.addEventListener('DOMContentLoaded', function() {
             console.log('✅ BWA Dashboard geladen');
-            console.log('🔍 Suche DOM-Elemente...');
 
             // Elemente finden
             uploadZone = document.getElementById('uploadZone');
@@ -1154,14 +1149,8 @@
             metricsGrid = document.getElementById('metricsGrid');
             historyTableBody = document.getElementById('historyTableBody');
 
-            console.log('📋 Gefundene Elemente:');
-            console.log('  - uploadZone:', uploadZone ? '✅' : '❌');
-            console.log('  - fileInput:', fileInput ? '✅' : '❌');
-            
             if (!uploadZone || !fileInput) {
                 console.error('❌ Kritische Elemente fehlen!');
-                console.error('uploadZone Element vorhanden:', document.getElementById('uploadZone'));
-                console.error('fileInput Element vorhanden:', document.getElementById('fileInput'));
                 return;
             }
 
@@ -1174,23 +1163,9 @@
         });
 
         function setupEventListeners() {
-            console.log('🔧 setupEventListeners wird ausgeführt');
-            console.log('📍 uploadZone:', uploadZone);
-            console.log('📍 fileInput:', fileInput);
-            
-            if (!uploadZone) {
-                console.error('❌ uploadZone nicht gefunden!');
-                return;
-            }
-            if (!fileInput) {
-                console.error('❌ fileInput nicht gefunden!');
-                return;
-            }
-            
             // Upload Zone Click
             uploadZone.addEventListener('click', function() {
                 console.log('🖱️ Upload Zone geklickt');
-                console.log('📂 Öffne Dateiauswahl...');
                 fileInput.click();
             });
 
