@@ -2488,7 +2488,20 @@
                 periodKey: bwaData.periodKey || `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`
             };
 
-            uploadHistory.unshift(entry);
+            // **WICHTIG: Historie neu laden falls sie zwischenzeitlich geändert wurde (z.B. durch Duplikat-Löschung)**
+            loadHistory();
+            
+            // Prüfe nochmal ob dieser Zeitraum bereits existiert (Duplikat-Schutz)
+            const existingIndex = uploadHistory.findIndex(bwa => bwa.periodKey === entry.periodKey);
+            if (existingIndex !== -1) {
+                // Ersetze bestehende BWA statt neue hinzuzufügen
+                console.log('🔄 Ersetze bestehende BWA für Zeitraum:', entry.periodKey);
+                uploadHistory[existingIndex] = entry;
+            } else {
+                // Neue BWA hinzufügen
+                uploadHistory.unshift(entry);
+            }
+            
             saveHistory();
             
             console.log('💾 BWA gespeichert mit Zeitraum:', entry.periodKey, `(${entry.monat} ${entry.jahr})`);
