@@ -1,5 +1,30 @@
 # 📋 BWAlytics - Release Notes
 
+## Version 7.1 (21. Oktober 2025) 🔐 **ENCRYPTION ACTIVE**
+
+### 🎯 Vollständige Verschlüsselung aktiviert
+- **Verschlüsselung jetzt funktional**: Beim ersten Upload wird Passwort abgefragt
+- **Automatische Entschlüsselung**: Beim App-Start wird Passwort für gespeicherte Daten abgefragt
+- **Intelligente Speicherung**: Verschlüsselt wenn Passwort gesetzt, sonst unverschlüsselt (Fallback)
+- **Session-basiert**: Passwort wird nur für aktive Session gespeichert
+
+### 🔧 Technische Integration
+- `finishUpload()`: Prüft ob erster Upload → zeigt Passwort-Dialog
+- `loadHistory()`: Erkennt verschlüsselte Daten und entschlüsselt mit masterPassword
+- `saveHistory()`: Verschlüsselt automatisch wenn sessionActive
+- `DOMContentLoaded`: Fragt Passwort ab wenn verschlüsselte Daten vorhanden
+
+### 🛡️ Sicherheits-Workflow
+1. **Erster Upload** → Passwort-Dialog ("setup") → Daten verschlüsselt
+2. **App-Reload** → Passwort-Dialog ("unlock") → Daten entschlüsselt
+3. **Session-Timeout** → Automatischer Logout nach 30 Min
+4. **Auto-Delete** → Daten werden nach 30 Tagen gelöscht
+
+### ✅ Jetzt production-ready
+Das Tool kann jetzt sicher für sensible BWA-Daten verwendet werden!
+
+---
+
 ## Version 7 (21. Oktober 2025) 🔐 **ENTERPRISE SECURITY UPDATE**
 
 ### 🔐 Datensicherheit & Verschlüsselung
