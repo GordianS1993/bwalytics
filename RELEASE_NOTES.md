@@ -1,5 +1,24 @@
 # 📋 BWAlytics - Release Notes
 
+## Version 6 (21. Oktober 2025) 🔒
+
+### 🔒 Sicherheit & Validierung
+- **Strikte BWA-Validierung**: System akzeptiert nur noch echte BWA-Dokumente
+- **4-Punkte-Validierung**: Prüft auf BWA-Keywords, Umsatz-, Kosten- und Ergebnis-Begriffe
+- **Validierungs-Score**: Mindestens 2 von 4 Kriterien müssen erfüllt sein
+- **Keine Demo-Daten mehr**: Bei ungültigen PDFs wird Upload abgebrochen (kein Fallback mehr)
+
+### 🎯 Fehlermeldungen
+- **Klare Fehler-Kommunikation**: "Ungültiges Dokument: Dies ist keine BWA. Bitte laden Sie eine betriebswirtschaftliche Auswertung (BWA) hoch."
+- **Upload-Reset**: Interface wird bei Fehler zurückgesetzt
+- **Console-Logging**: Detaillierte Validierungs-Informationen für Debugging
+
+### 🐛 Bugfix
+- **Problem behoben**: Beliebige PDFs (z.B. E-Tickets) können nicht mehr hochgeladen werden
+- Verhindert falsche Datenanalyse durch Nicht-BWA-Dokumente
+
+---
+
 ## Version 5 (21. Oktober 2025)
 
 ### ✨ Neue Features
