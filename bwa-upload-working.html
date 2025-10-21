@@ -830,8 +830,12 @@
                 <!-- Wird dynamisch ersetzt: Firmenlogo oder Initialen -->
                 GS
                 <!-- Upload-Overlay beim Hover -->
-                <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.5); border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 24px; color: white;" id="uploadOverlay">
-                    📸
+                <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.6); border-radius: 50%; display: none; align-items: center; justify-content: center; color: white; backdrop-filter: blur(2px);" id="uploadOverlay">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
                 </div>
             </div>
             <div class="user-info">
@@ -1803,7 +1807,7 @@
             }, 150);
         }
 
-        function handleFileUpload(file) {
+        async function handleFileUpload(file) {
             console.log('🚀 handleFileUpload:', file.name);
 
             if (isUploading) {
@@ -1822,56 +1826,99 @@
                 return;
             }
 
-            // **DUPLIKAT-PRÜFUNG**
-            const existingHistory = JSON.parse(localStorage.getItem('bwa-upload-history') || '[]');
-            const isDuplicate = existingHistory.some(bwa => bwa.filename === file.name);
+            // **MONATS-DUPLIKAT-PRÜFUNG** - Erst BWA parsen, dann Monat prüfen
+            showNotification('🔍 Prüfe Zeitraum der BWA...', 'info');
             
-            if (isDuplicate) {
-                showDuplicateDialog(file);
-                return;
+            try {
+                // BWA-Text extrahieren um Zeitraum zu ermitteln
+                const arrayBuffer = await file.arrayBuffer();
+                const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+                const pdf = await loadingTask.promise;
+                
+                let fullText = '';
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(' ');
+                    fullText += pageText + ' ';
+                }
+                
+                // Zeitraum extrahieren
+                const period = extractPeriodFromBWA(fullText);
+                const periodKey = period.periodKey; // z.B. "2024-06"
+                
+                console.log('📅 Zeitraum der neuen BWA:', periodKey, `(${period.month} ${period.year})`);
+                
+                // Prüfe ob dieser Monat bereits existiert
+                const existingHistory = JSON.parse(localStorage.getItem('bwa-upload-history') || '[]');
+                const existingPeriod = existingHistory.find(bwa => bwa.periodKey === periodKey);
+                
+                if (existingPeriod) {
+                    console.log('⚠️ BWA für diesen Zeitraum bereits vorhanden!');
+                    showMonthDuplicateDialog(file, period, existingPeriod);
+                    return;
+                }
+                
+                console.log('✅ Neuer Zeitraum, Upload wird gestartet');
+                startUpload(file);
+                
+            } catch (error) {
+                console.error('❌ Fehler bei Zeitraum-Prüfung:', error);
+                // Bei Fehler trotzdem Upload erlauben (Fallback)
+                showNotification('⚠️ Zeitraum konnte nicht ermittelt werden, Upload wird fortgesetzt', 'warning');
+                startUpload(file);
             }
-
-            startUpload(file);
         }
 
-        // Stylischer Duplikat-Dialog
-        function showDuplicateDialog(file) {
+        // **NEU: Monats-Duplikat-Dialog** - Warnt wenn Monat bereits existiert
+        function showMonthDuplicateDialog(file, newPeriod, existingBWA) {
             const modal = document.createElement('div');
             modal.className = 'modal-overlay';
             modal.innerHTML = `
-                <div class="modal-dialog" style="max-width: 520px;">
+                <div class="modal-dialog" style="max-width: 560px;">
                     <div style="text-align: center; margin-bottom: 24px;">
-                        <div style="display: inline-flex; align-items: center; justify-content: center; width: 72px; height: 72px; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); border-radius: 50%; margin-bottom: 20px; box-shadow: 0 8px 24px rgba(251, 191, 36, 0.3);">
-                            <span style="font-size: 36px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">!</span>
+                        <div style="display: inline-flex; align-items: center; justify-content: center; width: 72px; height: 72px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border-radius: 50%; margin-bottom: 20px; box-shadow: 0 8px 24px rgba(239, 68, 68, 0.35);">
+                            <span style="font-size: 36px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">⚠️</span>
                         </div>
-                        <h2 style="color: var(--color-gray-900); margin: 0 0 8px 0; font-size: 1.4rem; font-weight: 700;">Die Datei</h2>
-                        <p style="color: var(--color-gray-900); margin: 0; font-size: 1.15rem; font-weight: 600; word-break: break-word; padding: 0 10px;">"${file.name}"</p>
-                        <p style="color: var(--color-gray-900); margin: 8px 0 0 0; font-size: 1.15rem;">wurde bereits hochgeladen.</p>
+                        <h2 style="color: var(--color-gray-900); margin: 0 0 12px 0; font-size: 1.5rem; font-weight: 700;">BWA für ${newPeriod.month} ${newPeriod.year} bereits vorhanden!</h2>
                     </div>
                     
-                    <p style="color: var(--color-gray-600); font-size: 1.05rem; line-height: 1.6; margin: 0 0 20px 0; text-align: center;">
-                        Möchten Sie diese BWA erneut hochladen?
-                    </p>
-                    
-                    <div style="background: linear-gradient(to right, #fef3c7, #fde68a); border-left: 4px solid #f59e0b; padding: 14px 18px; border-radius: 10px; margin: 0 0 28px 0; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);">
-                        <p style="margin: 0; color: #92400e; font-size: 0.95rem; line-height: 1.5;">
-                            <strong style="font-weight: 700;">💡 Hinweis:</strong> Dies erstellt einen neuen Eintrag in der Historie
+                    <div style="background: linear-gradient(to right, #fee2e2, #fecaca); border-left: 4px solid #dc2626; padding: 16px 20px; border-radius: 10px; margin: 0 0 20px 0; box-shadow: 0 2px 8px rgba(220, 38, 38, 0.15);">
+                        <p style="margin: 0 0 10px 0; color: #991b1b; font-size: 0.95rem; line-height: 1.6;">
+                            <strong style="font-weight: 700;">🚫 Duplikat erkannt</strong><br>
+                            Sie haben bereits eine BWA für <strong>${newPeriod.month} ${newPeriod.year}</strong> hochgeladen.
+                        </p>
+                        <p style="margin: 0; color: #991b1b; font-size: 0.9rem;">
+                            📅 Bestehende BWA: ${existingBWA.monat} ${existingBWA.jahr}<br>
+                            📄 Datei: <em>${existingBWA.filename || 'Unbekannt'}</em>
                         </p>
                     </div>
+                    
+                    <div style="background: linear-gradient(to right, #dbeafe, #bfdbfe); border-left: 4px solid #3b82f6; padding: 16px 20px; border-radius: 10px; margin: 0 0 28px 0; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);">
+                        <p style="margin: 0; color: #1e40af; font-size: 0.95rem; line-height: 1.6;">
+                            <strong style="font-weight: 700;">💡 Warum ist das wichtig?</strong><br>
+                            Für aussagekräftige Trends benötigen Sie <strong>verschiedene Monate</strong>. Das System vergleicht BWAs über die Zeit – Duplikate würden die Analyse verfälschen.
+                        </p>
+                    </div>
+                    
+                    <p style="color: var(--color-gray-600); font-size: 1rem; line-height: 1.6; margin: 0 0 24px 0; text-align: center;">
+                        Möchten Sie die bestehende BWA für <strong>${newPeriod.month} ${newPeriod.year}</strong> überschreiben?
+                    </p>
 
                     <div style="display: flex; gap: 12px;">
                         <button onclick="closeDuplicateDialog()" style="flex: 1; padding: 16px; background: white; border: 2px solid #d1d5db; border-radius: 10px; font-size: 1.05rem; font-weight: 600; cursor: pointer; color: var(--color-gray-700); transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1);" onmouseover="this.style.background='#f9fafb'; this.style.borderColor='#9ca3af'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.12)'" onmouseout="this.style.background='white'; this.style.borderColor='#d1d5db'; this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)'">
-                            Abbrechen
+                            ❌ Abbrechen
                         </button>
-                        <button onclick="confirmDuplicateUpload()" style="flex: 1; padding: 16px; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); color: white; border: none; border-radius: 10px; font-size: 1.05rem; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(59,130,246,0.35);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(59,130,246,0.45)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(59,130,246,0.35)'">
-                            OK, erneut hochladen
+                        <button onclick="confirmDuplicateUpload()" style="flex: 1; padding: 16px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; border-radius: 10px; font-size: 1.05rem; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(245, 158, 11, 0.45)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(245, 158, 11, 0.35)'">
+                            ✅ Ja, überschreiben
                         </button>
                     </div>
                 </div>
             `;
             
-            // File-Referenz für später speichern
+            // File-Referenz + Period für später speichern
             modal.pendingFile = file;
+            modal.periodKey = newPeriod.periodKey;
             document.body.appendChild(modal);
         }
 
@@ -1887,8 +1934,26 @@
         window.confirmDuplicateUpload = function() {
             const modal = document.querySelector('.modal-overlay');
             if (modal && modal.pendingFile) {
-                console.log('✅ Duplikat-Upload bestätigt');
+                console.log('✅ Monats-Duplikat-Upload bestätigt - Überschreibe bestehende BWA');
+                
                 const file = modal.pendingFile;
+                const periodKey = modal.periodKey;
+                
+                // **WICHTIG: Lösche alte BWA mit gleichem Zeitraum aus localStorage**
+                if (periodKey) {
+                    let history = JSON.parse(localStorage.getItem('bwa-upload-history') || '[]');
+                    const oldCount = history.length;
+                    
+                    // Filtere alte BWA mit gleichem periodKey raus
+                    history = history.filter(bwa => bwa.periodKey !== periodKey);
+                    
+                    const removed = oldCount - history.length;
+                    if (removed > 0) {
+                        localStorage.setItem('bwa-upload-history', JSON.stringify(history));
+                        console.log(`🗑️ ${removed} alte BWA(s) für Zeitraum ${periodKey} gelöscht`);
+                    }
+                }
+                
                 modal.remove();
                 startUpload(file);
             }
@@ -2148,12 +2213,21 @@
             const fixedCosts = personalCosts + rentCosts + Math.round(otherCosts * 0.6);
             const variableCosts = materialCosts + marketingCosts + Math.round(otherCosts * 0.4);
             
+            // **NEU: Zeitraum aus BWA extrahieren**
+            const period = extractPeriodFromBWA(text);
+            
             return {
                 revenue: Math.round(revenue),
                 costs: Math.round(costs),
                 profit: Math.round(profit),
                 margin: parseFloat(margin),
                 source: 'extracted',
+                
+                // **NEU: Zeitraum-Daten**
+                month: period.month,
+                monthNumber: period.monthNumber,
+                year: period.year,
+                periodKey: period.periodKey, // Format: "2024-06" für eindeutige Identifikation
                 
                 // Kostenaufschlüsselung
                 costBreakdown: {
@@ -2216,6 +2290,118 @@
             
             console.log('🔢 Ergebnis:', result);
             return result;
+        }
+
+        // **NEU: Monat und Jahr aus BWA-Text extrahieren**
+        function extractPeriodFromBWA(text) {
+            console.log('📅 Extrahiere Berichtszeitraum aus BWA...');
+            
+            const normalizedText = text.toLowerCase();
+            
+            // Monatsnamen auf Deutsch
+            const monthNames = {
+                'januar': 1, 'jan': 1,
+                'februar': 2, 'feb': 2,
+                'märz': 3, 'maerz': 3, 'marz': 3, 'mrz': 3,
+                'april': 4, 'apr': 4,
+                'mai': 5,
+                'juni': 6, 'jun': 6,
+                'juli': 7, 'jul': 7,
+                'august': 8, 'aug': 8,
+                'september': 9, 'sep': 9, 'sept': 9,
+                'oktober': 10, 'okt': 10, 'oct': 10,
+                'november': 11, 'nov': 11,
+                'dezember': 12, 'dez': 12, 'dec': 12
+            };
+            
+            let foundMonth = null;
+            let foundYear = null;
+            
+            // Suche nach "Berichtszeitraum: Januar 2024" oder ähnlichen Patterns
+            const patterns = [
+                /berichtszeitraum[:\s]+(\w+)\s+(\d{4})/i,
+                /zeitraum[:\s]+(\w+)\s+(\d{4})/i,
+                /periode[:\s]+(\w+)\s+(\d{4})/i,
+                /monat[:\s]+(\w+)\s+(\d{4})/i,
+                /bwa\s+(\w+)\s+(\d{4})/i,
+                /(\w+)\s+(\d{4})\s+bwa/i,
+                // Numerisches Format: "01/2024" oder "01.2024"
+                /(\d{1,2})[\/\.](\d{4})/,
+                // Jahr + Monat: "2024-01" oder "2024/01"
+                /(\d{4})[-\/](\d{1,2})/
+            ];
+            
+            for (const pattern of patterns) {
+                const match = normalizedText.match(pattern);
+                if (match) {
+                    console.log('📅 Pattern gefunden:', match[0]);
+                    
+                    // Prüfen ob erstes Match ein Monatsname oder eine Zahl ist
+                    if (isNaN(match[1])) {
+                        // Monatsname + Jahr
+                        const monthStr = match[1].toLowerCase().trim();
+                        foundMonth = monthNames[monthStr];
+                        foundYear = parseInt(match[2]);
+                    } else if (match[1].length === 4) {
+                        // Jahr + Monat (2024-01)
+                        foundYear = parseInt(match[1]);
+                        foundMonth = parseInt(match[2]);
+                    } else {
+                        // Monat + Jahr (01/2024)
+                        foundMonth = parseInt(match[1]);
+                        foundYear = parseInt(match[2]);
+                    }
+                    
+                    if (foundMonth && foundYear) break;
+                }
+            }
+            
+            // Fallback: Suche einfach nach Monatsnamen + vierstelliger Jahreszahl
+            if (!foundMonth || !foundYear) {
+                for (const [monthName, monthNum] of Object.entries(monthNames)) {
+                    const regex = new RegExp(`\\b${monthName}\\b.*?(\\d{4})`, 'i');
+                    const match = normalizedText.match(regex);
+                    if (match) {
+                        foundMonth = monthNum;
+                        foundYear = parseInt(match[1]);
+                        console.log('📅 Fallback gefunden:', monthName, foundYear);
+                        break;
+                    }
+                }
+            }
+            
+            // Plausibilitätsprüfung
+            if (foundMonth && (foundMonth < 1 || foundMonth > 12)) {
+                console.log('⚠️ Ungültiger Monat:', foundMonth);
+                foundMonth = null;
+            }
+            
+            if (foundYear && (foundYear < 2000 || foundYear > 2030)) {
+                console.log('⚠️ Ungültiges Jahr:', foundYear);
+                foundYear = null;
+            }
+            
+            if (foundMonth && foundYear) {
+                const monthNamesFull = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 
+                                       'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+                const result = {
+                    month: monthNamesFull[foundMonth - 1],
+                    monthNumber: foundMonth,
+                    year: foundYear,
+                    periodKey: `${foundYear}-${String(foundMonth).padStart(2, '0')}`
+                };
+                console.log('✅ Zeitraum gefunden:', result);
+                return result;
+            }
+            
+            console.log('⚠️ Kein Zeitraum gefunden, verwende aktuellen Monat');
+            const now = new Date();
+            return {
+                month: now.toLocaleString('de-DE', { month: 'long' }),
+                monthNumber: now.getMonth() + 1,
+                year: now.getFullYear(),
+                periodKey: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+            };
         }
 
         function generateBWAData(filename) {
@@ -2295,11 +2481,17 @@
                 filename: file.name,
                 timestamp: Date.now(),
                 date: new Date().toLocaleDateString('de-DE'),
-                ...bwaData
+                ...bwaData,
+                // Sicherstellen dass Zeitraum-Daten vorhanden sind
+                monat: bwaData.month || new Date().toLocaleString('de-DE', { month: 'long' }),
+                jahr: bwaData.year || new Date().getFullYear(),
+                periodKey: bwaData.periodKey || `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`
             };
 
             uploadHistory.unshift(entry);
             saveHistory();
+            
+            console.log('💾 BWA gespeichert mit Zeitraum:', entry.periodKey, `(${entry.monat} ${entry.jahr})`);
 
             // Globale Variable für Dashboard-Daten setzen
             window.currentBWAData = bwaData;
@@ -2842,27 +3034,49 @@
                 return null;
             }
             
-            // Sortiere nach Datum (älteste zuerst)
-            const sortedHistory = [...uploadHistory].sort((a, b) => a.timestamp - b.timestamp);
+            // **WICHTIG: Prüfe ob wirklich unterschiedliche Monate vorhanden sind**
+            const uniquePeriods = new Set(uploadHistory.map(entry => entry.periodKey).filter(Boolean));
             
-            // Nehme die letzten 6 Einträge (oder weniger, wenn nicht vorhanden)
-            const recentHistory = sortedHistory.slice(-6);
+            if (uniquePeriods.size < 2) {
+                console.log('⚠️ Trend erfordert mindestens 2 verschiedene Monate (aktuell:', uniquePeriods.size, ')');
+                console.log('📅 Vorhandene Monate:', Array.from(uniquePeriods));
+                return null;
+            }
             
-            // Konvertiere zu Chart-Format
-            const months = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+            console.log(`✅ ${uniquePeriods.size} verschiedene Monate gefunden - Trend kann angezeigt werden`);
+            
+            // Sortiere nach periodKey (chronologisch: "2024-01", "2024-02", etc.)
+            const sortedHistory = [...uploadHistory]
+                .filter(entry => entry.periodKey) // Nur Einträge mit periodKey
+                .sort((a, b) => {
+                    // Sortiere nach Jahr, dann nach Monat
+                    const [yearA, monthA] = a.periodKey.split('-').map(Number);
+                    const [yearB, monthB] = b.periodKey.split('-').map(Number);
+                    return yearA !== yearB ? yearA - yearB : monthA - monthB;
+                });
+            
+            // Entferne Duplikate (behalte neueste BWA pro Monat)
+            const uniqueByPeriod = {};
+            sortedHistory.forEach(entry => {
+                if (!uniqueByPeriod[entry.periodKey] || entry.timestamp > uniqueByPeriod[entry.periodKey].timestamp) {
+                    uniqueByPeriod[entry.periodKey] = entry;
+                }
+            });
+            
+            // Nehme die letzten 6 verschiedenen Monate
+            const recentHistory = Object.values(uniqueByPeriod).slice(-6);
+            
+            // Konvertiere zu Chart-Format mit echten Monatsnamen aus BWA
             const data = recentHistory.map(entry => {
-                const date = new Date(entry.timestamp);
-                const monthName = months[date.getMonth()];
-                
                 return {
-                    month: `${monthName} ${date.getFullYear().toString().slice(-2)}`,
+                    month: `${entry.monat || 'Unbekannt'} '${(entry.jahr || new Date().getFullYear()).toString().slice(-2)}`,
                     revenue: entry.revenue || 0,
                     costs: entry.costs || 0,
                     profit: entry.profit || (entry.revenue - entry.costs)
                 };
             });
             
-            console.log(`📊 ${data.length} historische Datenpunkte für Trend geladen`);
+            console.log(`📊 ${data.length} historische Datenpunkte für Trend geladen:`, data.map(d => d.month).join(', '));
             return data;
         }
 
@@ -2872,17 +3086,56 @@
             
             if (!canvas) return;
             
-            // Wenn keine historischen Daten, verstecke den Trend-Bereich
+            // **NEU: Wenn keine historischen Daten, zeige Info-Box statt Chart**
             if (!historicalData || historicalData.length < 2) {
                 if (trendContainer) {
-                    trendContainer.style.display = 'none';
+                    // Verstecke Canvas
+                    canvas.style.display = 'none';
+                    
+                    // Prüfe ob Info-Box bereits existiert
+                    let infoBox = trendContainer.querySelector('.trend-info-box');
+                    if (!infoBox) {
+                        infoBox = document.createElement('div');
+                        infoBox.className = 'trend-info-box';
+                        trendContainer.appendChild(infoBox);
+                    }
+                    
+                    // Zähle vorhandene Monate
+                    const uploadHistory = JSON.parse(localStorage.getItem('bwa-upload-history') || '[]');
+                    const uniquePeriods = new Set(uploadHistory.map(entry => entry.periodKey).filter(Boolean));
+                    const monthsCount = uniquePeriods.size;
+                    
+                    infoBox.innerHTML = `
+                        <div style="text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-radius: 12px; border: 2px dashed #3b82f6;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">📊</div>
+                            <h3 style="color: var(--color-gray-900); margin: 0 0 12px 0; font-size: 1.3rem; font-weight: 700;">
+                                Trends noch nicht verfügbar
+                            </h3>
+                            <p style="color: var(--color-gray-600); font-size: 1rem; line-height: 1.6; margin: 0 0 20px 0; max-width: 500px; margin-left: auto; margin-right: auto;">
+                                Sie haben aktuell <strong style="color: #1e40af;">${monthsCount} ${monthsCount === 1 ? 'Monat' : 'Monate'}</strong> hochgeladen. 
+                                Für aussagekräftige Trends benötigen Sie <strong>mindestens 2 verschiedene Monate</strong>.
+                            </p>
+                            <div style="background: white; padding: 16px 20px; border-radius: 10px; border-left: 4px solid #3b82f6; margin: 20px auto 0; max-width: 500px; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);">
+                                <p style="margin: 0; color: #1e40af; font-size: 0.95rem; line-height: 1.5;">
+                                    <strong style="font-weight: 700;">💡 Tipp:</strong> Laden Sie BWAs aus <strong>verschiedenen Monaten</strong> hoch, um Ihre Entwicklung über die Zeit zu verfolgen.
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    trendContainer.style.display = 'block';
                 }
-                console.log('⚠️ Trend-Chart nicht angezeigt: Mindestens 2 BWAs benötigt');
+                console.log('⚠️ Trend-Chart nicht angezeigt: Mindestens 2 verschiedene Monate benötigt');
                 return;
             }
             
-            // Trend-Container anzeigen
+            // **Trend-Daten vorhanden: Zeige Chart, verstecke Info-Box**
             if (trendContainer) {
+                const infoBox = trendContainer.querySelector('.trend-info-box');
+                if (infoBox) {
+                    infoBox.remove();
+                }
+                canvas.style.display = 'block';
                 trendContainer.style.display = 'block';
             }
             
@@ -2963,7 +3216,9 @@
                 }
             });
             
-            // Wachstumsraten berechnen und anzeigen (nur wenn mindestens 2 Datenpunkte)
+            // **NEU: Wachstumsraten-Karten nur anzeigen wenn mindestens 2 verschiedene Monate**
+            const growthContainer = document.querySelector('.chart-container')?.nextElementSibling?.querySelector('[style*="grid-template-columns: repeat(3, 1fr)"]');
+            
             if (historicalData && historicalData.length >= 2) {
                 const lastMonth = historicalData[historicalData.length - 1];
                 const prevMonth = historicalData[historicalData.length - 2];
@@ -2978,9 +3233,29 @@
                 const costGrowthEl = document.getElementById('costGrowth');
                 const profitGrowthEl = document.getElementById('profitGrowth');
                 
-                if (revenueGrowthEl) revenueGrowthEl.textContent = (revenueGrowth > 0 ? '+' : '') + revenueGrowth + '%';
-                if (costGrowthEl) costGrowthEl.textContent = (costGrowth > 0 ? '+' : '') + costGrowth + '%';
-                if (profitGrowthEl) profitGrowthEl.textContent = (profitGrowth > 0 ? '+' : '') + profitGrowth + '%';
+                if (revenueGrowthEl) {
+                    revenueGrowthEl.textContent = (revenueGrowth > 0 ? '+' : '') + revenueGrowth + '%';
+                    revenueGrowthEl.style.color = revenueGrowth >= 0 ? '#10b981' : '#ef4444';
+                }
+                if (costGrowthEl) {
+                    costGrowthEl.textContent = (costGrowth > 0 ? '+' : '') + costGrowth + '%';
+                    costGrowthEl.style.color = costGrowth <= 0 ? '#10b981' : '#ef4444'; // Niedrigere Kosten = gut
+                }
+                if (profitGrowthEl) {
+                    profitGrowthEl.textContent = (profitGrowth > 0 ? '+' : '') + profitGrowth + '%';
+                    profitGrowthEl.style.color = profitGrowth >= 0 ? '#10b981' : '#ef4444';
+                }
+                
+                // Zeige Wachstumsraten-Container
+                if (growthContainer) {
+                    growthContainer.style.display = 'grid';
+                }
+            } else {
+                // Verstecke Wachstumsraten-Container wenn nicht genug Daten
+                if (growthContainer) {
+                    growthContainer.style.display = 'none';
+                }
+                console.log('⚠️ Wachstumsraten nicht angezeigt: Mindestens 2 verschiedene Monate benötigt');
             }
         }
 
@@ -4196,6 +4471,13 @@
 
         // Logo-Upload triggern
         function triggerLogoUpload() {
+            // Prüfe ob User eingeloggt ist
+            if (!currentUser.isLoggedIn) {
+                showNotification('⚠️ Bitte melden Sie sich an, um ein Firmenlogo hochzuladen', 'warning');
+                setTimeout(() => showLoginModal(), 500);
+                return;
+            }
+            
             const input = document.getElementById('logoUploadInput');
             if (input) {
                 input.click();
