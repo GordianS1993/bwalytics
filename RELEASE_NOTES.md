@@ -1,5 +1,48 @@
 # 📋 BWAlytics - Release Notes
 
+## Version 7 (21. Oktober 2025) 🔐 **ENTERPRISE SECURITY UPDATE**
+
+### 🔐 Datensicherheit & Verschlüsselung
+- **AES-256 Verschlüsselung**: Militärische Verschlüsselung für alle BWA-Daten
+- **Master-Passwort-System**: Nutzer können Daten mit persönlichem Passwort schützen
+- **Passwort-Stärke-Indikator**: Echtzeit-Feedback zur Passwortsicherheit (Schwach/Mittel/Gut/Sehr sicher)
+- **Session-Management**: Automatischer Logout nach 30 Minuten Inaktivität
+- **Auto-Löschung**: Daten werden automatisch nach 30 Tagen gelöscht
+- **Verschlüsseltes localStorage**: Keine Klartext-Speicherung sensibler Daten
+
+### 🎨 UI/UX Verbesserungen
+- **Sicherheits-Banner**: Prominenter grüner Banner im Upload-Bereich mit Sicherheits-Features
+- **Security Modal**: Professioneller Passwort-Dialog mit Icons und Feature-Liste
+- **Checkmark-Icons**: Visuelle Bestätigung aller Sicherheits-Features
+- **AES-256 Badge**: Prominente Anzeige der Verschlüsselungsstufe
+
+### 🛡️ Security Features im Detail
+- ✅ **100% Client-seitig**: Keine Datenübertragung an externe Server
+- ✅ **Keine Server-Uploads**: BWA-Dateien werden nur lokal verarbeitet
+- ✅ **Auto-Löschung nach 30 Tagen**: DSGVO-konforme Datenaufbewahrung
+- ✅ **Session-Timeout**: Automatisches Abmelden nach Inaktivität
+- ✅ **DSGVO-konform**: Vollständige Kontrolle über eigene Daten
+
+### 🔧 Technische Implementierung
+- **CryptoJS Integration**: Library für AES-256 Verschlüsselung eingebunden
+- **Encryption Functions**: `encryptData()`, `decryptData()`, `saveEncryptedData()`, `loadEncryptedData()`
+- **Session Tracking**: Activity-basiertes Session-Management
+- **Expiration Check**: Automatische Prüfung und Löschung abgelaufener Daten
+- **Password Strength Algorithm**: Multi-Faktor-Bewertung (Länge, Zeichen-Vielfalt)
+
+### 📊 Datenschutz-Informationen
+- Transparente Kommunikation über Datenverarbeitung
+- Keine Third-Party-Server für BWA-Verarbeitung
+- Volle Nutzerkontrolle über Verschlüsselung (optional)
+- Klare Hinweise zu Speicherdauer und Auto-Löschung
+
+### 🎯 Anwendungsfälle
+- **Kleine Unternehmen**: Sichere BWA-Analyse ohne Cloud-Abhängigkeit
+- **Steuerberater**: Vertrauenswürdige Lösung für Mandantendaten
+- **Sensible Daten**: Höchste Sicherheit durch lokale Verschlüsselung
+
+---
+
 ## Version 6 (21. Oktober 2025) 🔒
 
 ### 🔒 Sicherheit & Validierung
