@@ -1,0 +1,83 @@
+name: 🚀 Feature Request
+description: Schlage eine neue Funktion oder Verbesserung für BWAlytics vor
+title: "[FEATURE] "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke für deinen Feature-Vorschlag! Bitte beschreibe deine Idee so detailliert wie möglich.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Use Case
+      description: Welches Problem löst dieses Feature? Warum brauchst du es?
+      placeholder: "Als Kleinunternehmer möchte ich..., damit ich..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Vorgeschlagene Lösung
+      description: Wie stellst du dir die Umsetzung vor?
+      placeholder: "Das Feature sollte... / Es könnte funktionieren wie..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativen
+      description: Hast du alternative Lösungsansätze in Betracht gezogen?
+      placeholder: "Alternativ könnte man auch..."
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priorität aus deiner Sicht
+      options:
+        - Niedrig - Nice to have
+        - Mittel - Würde meine Arbeit erleichtern
+        - Hoch - Blockiert wichtige Workflows
+        - Kritisch - Ohne dieses Feature ist die App kaum nutzbar
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Feature-Kategorie
+      multiple: true
+      options:
+        - BWA-Extraktion / Parsing
+        - Dashboard / Visualisierung
+        - Kostenanalyse
+        - Liquiditätsplanung
+        - Sicherheit / Datenschutz
+        - Performance
+        - UX / Usability
+        - Dokumentation
+        - Sonstiges
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Zusätzlicher Kontext
+      description: Screenshots, Mockups, Links zu ähnlichen Features in anderen Tools?
+      placeholder: "Hier sind ein paar Screenshots... / Tool XY macht das so..."
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checkliste
+      options:
+        - label: Ich habe überprüft, dass dieses Feature noch nicht existiert oder als Issue gemeldet wurde
+          required: true
+        - label: Dieses Feature passt zur Zielgruppe (Kleinunternehmer, Selbstständige)
+          required: true
+        - label: Ich bin bereit, bei der Umsetzung zu helfen (Testing, Feedback)
+          required: false

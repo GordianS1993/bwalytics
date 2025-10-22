@@ -1,0 +1,143 @@
+name: 🐛 Bug Report
+description: Melde einen Fehler oder unerwartetes Verhalten in BWAlytics
+title: "[BUG] "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke für deinen Bug-Report! Je mehr Details du lieferst, desto schneller können wir das Problem lösen.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Beschreibung des Bugs
+      description: Was ist passiert? Was hast du erwartet?
+      placeholder: "Wenn ich auf 'BWA hochladen' klicke, passiert..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Schritte zur Reproduktion
+      description: Wie können wir den Fehler nachstellen?
+      placeholder: |
+        1. Gehe zu '...'
+        2. Klicke auf '...'
+        3. Scrolle nach '...'
+        4. Fehler tritt auf
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Erwartetes Verhalten
+      description: Was sollte stattdessen passieren?
+      placeholder: "Die App sollte..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Tatsächliches Verhalten
+      description: Was passiert wirklich?
+      placeholder: "Stattdessen zeigt die App..."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Schweregrad
+      options:
+        - Niedrig - Kosmetischer Fehler
+        - Mittel - Beeinträchtigt Funktionen, aber es gibt Workarounds
+        - Hoch - Kernfunktionen nicht nutzbar
+        - Kritisch - App komplett unbrauchbar / Datenverlust
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      multiple: true
+      options:
+        - Chrome
+        - Firefox
+        - Safari
+        - Edge
+        - Opera
+        - Andere (bitte in "Zusätzlicher Kontext" angeben)
+    validations:
+      required: true
+
+  - type: input
+    id: browser-version
+    attributes:
+      label: Browser-Version
+      placeholder: "z.B. Chrome 118, Firefox 119"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Betriebssystem
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - iOS
+        - Android
+    validations:
+      required: true
+
+  - type: dropdown
+    id: bwa-format
+    attributes:
+      label: BWA-Format (wenn relevant)
+      options:
+        - DATEV
+        - Lexoffice
+        - sevDesk
+        - Andere (bitte in "Zusätzlicher Kontext" angeben)
+        - Nicht relevant
+
+  - type: textarea
+    id: console-errors
+    attributes:
+      label: Browser-Console Fehler
+      description: |
+        Öffne die Browser-Console (F12) und kopiere alle Fehlermeldungen.
+        Tipp: Nutze das export-logs.html Tool im Repo!
+      placeholder: "Uncaught TypeError: ..."
+      render: shell
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots / Screen Recording
+      description: Füge Screenshots oder Videos hinzu, die das Problem zeigen
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Zusätzlicher Kontext
+      description: Weitere Informationen, die beim Debugging helfen könnten
+      placeholder: "Der Fehler tritt nur auf, wenn..."
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checkliste
+      options:
+        - label: Ich habe überprüft, dass dieser Bug noch nicht als Issue gemeldet wurde
+          required: true
+        - label: Ich habe versucht, die Browser-Console nach Fehlern zu durchsuchen
+          required: false
+        - label: Ich kann bei Bedarf weitere Informationen zur Verfügung stellen
+          required: false

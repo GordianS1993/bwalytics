@@ -1,0 +1,112 @@
+name: 🔄 Change Request
+description: Schlage eine Änderung an bestehendem Verhalten oder Code vor
+title: "[CHANGE] "
+labels: ["enhancement", "refactor", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Change Requests sind für Verbesserungen an **bestehenden Features** gedacht.
+        Für neue Features nutze bitte das "Feature Request" Template.
+
+  - type: textarea
+    id: current-behavior
+    attributes:
+      label: Aktuelles Verhalten
+      description: Was macht die App aktuell?
+      placeholder: "Derzeit wird die Kostenanalyse so dargestellt..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-change
+    attributes:
+      label: Vorgeschlagene Änderung
+      description: Wie sollte es stattdessen funktionieren?
+      placeholder: "Die Kostenanalyse sollte stattdessen..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reasoning
+    attributes:
+      label: Begründung
+      description: Warum ist diese Änderung notwendig/sinnvoll?
+      placeholder: "Diese Änderung würde... / Das aktuelle Verhalten ist problematisch, weil..."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Art der Änderung
+      multiple: true
+      options:
+        - UX / Usability Verbesserung
+        - Performance-Optimierung
+        - Code-Refactoring
+        - Datenmodell-Änderung
+        - API-Änderung
+        - Breaking Change (nicht rückwärtskompatibel)
+        - Dokumentations-Update
+        - Konfigurationsänderung
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Auswirkung auf bestehende Nutzer
+      options:
+        - Keine - Nur interne Verbesserungen
+        - Niedrig - Kaum merklich
+        - Mittel - Nutzer müssen sich umgewöhnen
+        - Hoch - Breaking Change, Migration notwendig
+    validations:
+      required: true
+
+  - type: textarea
+    id: affected-components
+    attributes:
+      label: Betroffene Komponenten / Dateien
+      description: Welche Teile der App sind betroffen?
+      placeholder: |
+        - bwa-upload-working.html (Zeile 2750-2920)
+        - extractDetailedCostBreakdown() Funktion
+        - Dashboard Visualisierung
+
+  - type: textarea
+    id: migration
+    attributes:
+      label: Migration / Rückwärtskompatibilität
+      description: Wie gehen wir mit bestehenden Daten/Nutzern um?
+      placeholder: "Alte Daten können migriert werden, indem... / Kein Migrations-Aufwand notwendig"
+
+  - type: textarea
+    id: testing
+    attributes:
+      label: Testing-Strategie
+      description: Wie kann diese Änderung getestet werden?
+      placeholder: |
+        - Unit-Tests für...
+        - Manuelle Tests mit DATEV-BWA von...
+        - Regression-Tests für...
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Zusätzlicher Kontext
+      description: Code-Beispiele, Benchmarks, Links zu ähnlichen Changes?
+      placeholder: "Code-Beispiel... / Performance-Messung..."
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checkliste
+      options:
+        - label: Ich habe überprüft, dass diese Änderung noch nicht vorgeschlagen wurde
+          required: true
+        - label: Ich habe die Auswirkungen auf bestehende Nutzer bedacht
+          required: true
+        - label: Ich bin bereit, bei der Umsetzung zu helfen (Code Review, Testing)
+          required: false
