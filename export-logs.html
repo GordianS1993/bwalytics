@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Console Log Export</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        #logs {
+            background: #252526;
+            padding: 20px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-size: 12px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px 5px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #0e639c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #1177bb;
+        }
+        .success {
+            background: #4caf50;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>📋 Console Logs</h1>
+    <button onclick="copyLogs()">📋 Copy to Clipboard</button>
+    <button onclick="downloadLogs()">💾 Download as .txt</button>
+    <button onclick="clearLogs()">🗑️ Clear</button>
+    <div class="success" id="success">✅ Logs copied to clipboard!</div>
+    <div id="logs"></div>
+
+    <script>
+        const logContainer = document.getElementById('logs');
+        const originalConsole = {
+            log: console.log,
+            error: console.error,
+            warn: console.warn,
+            info: console.info
+        };
+        
+        let logHistory = [];
+
+        function addLog(type, ...args) {
+            const timestamp = new Date().toLocaleTimeString();
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            logHistory.push(logEntry);
+            logContainer.textContent = logHistory.join('\n');
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        console.log = function(...args) {
+            originalConsole.log.apply(console, args);
+            addLog('log', ...args);
+        };
+        
+        console.error = function(...args) {
+            originalConsole.error.apply(console, args);
+            addLog('error', ...args);
+        };
+        
+        console.warn = function(...args) {
+            originalConsole.warn.apply(console, args);
+            addLog('warn', ...args);
+        };
+        
+        console.info = function(...args) {
+            originalConsole.info.apply(console, args);
+            addLog('info', ...args);
+        };
+
+        function copyLogs() {
+            navigator.clipboard.writeText(logHistory.join('\n')).then(() => {
+                const successMsg = document.getElementById('success');
+                successMsg.style.display = 'block';
+                setTimeout(() => successMsg.style.display = 'none', 2000);
+            });
+        }
+
+        function downloadLogs() {
+            const blob = new Blob([logHistory.join('\n')], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `bwa-logs-${new Date().toISOString().slice(0,10)}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function clearLogs() {
+            logHistory = [];
+            logContainer.textContent = '';
+        }
+
+        // Öffne die BWA-Upload Seite in einem iframe (optional)
+        console.log('📊 Console Log Export bereit!');
+        console.log('Öffnen Sie bwa-upload-working.html und laden Sie eine BWA hoch.');
+        console.log('Alle Logs werden hier automatisch angezeigt.');
+    </script>
+</body>
+</html>

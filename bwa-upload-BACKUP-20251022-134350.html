@@ -2757,165 +2757,6 @@
             }
         }
 
-        /**
-         * 🚀 INTELLIGENTE KOSTENARTEN-EXTRAKTION
-         * Analysiert Summen- und Saldenliste (DATEV, Lexoffice, etc.)
-         * Extrahiert ECHTE Kontenbeträge und kategorisiert semantisch
-         */
-        function extractDetailedCostBreakdown(text) {
-            console.log('🔍 === INTELLIGENTE KOSTENARTEN-EXTRAKTION ===');
-            
-            const costs = {
-                // Hauptkategorien
-                personal: { total: 0, items: [], label: 'Personalkosten' },
-                raum: { total: 0, items: [], label: 'Raumkosten' },
-                kfz: { total: 0, items: [], label: 'Kfz-Kosten' },
-                marketing: { total: 0, items: [], label: 'Marketing & Werbung' },
-                versicherungen: { total: 0, items: [], label: 'Versicherungen & Beiträge' },
-                büro: { total: 0, items: [], label: 'Büro & Verwaltung' },
-                fremdleistung: { total: 0, items: [], label: 'Fremdleistungen' },
-                sonstige: { total: 0, items: [], label: 'Sonstige Kosten' }
-            };
-            
-            // Kategorisierungs-Regeln (semantisch, format-agnostisch)
-            const categoryRules = {
-                personal: [
-                    /4120.*gehalt|lohn|gehälter/i,
-                    /4130.*sozial.*aufwend|sozialabgaben|lohnnebenkosten/i,
-                    /4140.*freiw.*sozial|vermögenswirksam|betriebliche altersv/i,
-                    /gehalt|lohn|personal|sozialvers|arbeitgeber/i
-                ],
-                raum: [
-                    /421\d.*miete|raumkosten/i,
-                    /424\d.*strom|gas|wasser|heizung|energie/i,
-                    /425\d.*reinigung|hausmeister|geb.*reinigung/i,
-                    /miete|nebenkosten|strom|gas|wasser|heizung/i
-                ],
-                kfz: [
-                    /452\d.*kfz.*versich|fahrzeugversich/i,
-                    /453\d.*kfz.*betrieb|kraftstoff|tanken|diesel|benzin/i,
-                    /454\d.*kfz.*repar|reparatur.*fahr/i,
-                    /455\d.*kfz|fahrzeug/i,
-                    /456\d.*maut|vignette/i,
-                    /458\d.*sonst.*kfz/i,
-                    /459\d.*fremdfahrzeug|mietfahrzeug|leasing.*fahr/i,
-                    /kfz|fahrzeug|auto|pkw|lkw|kraftstoff|tanken|maut/i
-                ],
-                marketing: [
-                    /460\d.*werb|marketing|anzeigen/i,
-                    /465\d.*bewirt|geschäftsessen/i,
-                    /werb|marketing|anzeige|google.*ads|facebook.*ads|kampagne/i
-                ],
-                versicherungen: [
-                    /436\d.*versich|haftpflicht/i,
-                    /438\d.*beitr|kammer|verband|ihk/i,
-                    /439\d.*abgab|gebühr/i,
-                    /versicherung|haftpflicht|kammer|beitrag|ihk/i
-                ],
-                büro: [
-                    /491\d.*porto|brief|paket/i,
-                    /492\d.*telefon|internet|mobilfunk/i,
-                    /493\d.*büro|schreibw|papier|toner/i,
-                    /495\d.*rechts|beratung|steuerber/i,
-                    /496\d.*edv|software|computer/i,
-                    /497\d.*bank|konto|gebühr/i,
-                    /498\d.*sonst.*betrieb/i,
-                    /büro|porto|telefon|internet|software|beratung|rechts|steuer/i
-                ],
-                fremdleistung: [
-                    /470\d.*verpack|material/i,
-                    /478\d.*fremd.*arb|subunternehm|freelanc/i,
-                    /fremdleis|subuntern|extern.*dienst|freelanc/i
-                ]
-            };
-            
-            // Analysiere jede Zeile
-            const lines = text.split('\n');
-            let inSuSaList = false;
-            
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i].trim();
-                
-                // Erkennung: Summen- und Saldenliste Bereich
-                if (/summen.*saldenliste/i.test(line)) {
-                    inSuSaList = true;
-                    console.log(`📍 Zeile ${i}: Summen- und Saldenliste gefunden`);
-                    continue;
-                }
-                
-                // Erkenne Kontozeilen mit Pattern: "Kontonummer Bezeichnung Betrag"
-                // Format DATEV: "49.939,50 11.242,51 Gehälter 38.696,99 4120 S S"
-                // oder: "4120 Gehälter 49.939,50"
-                const kontoMatch = line.match(/^([\d,\.]+)\s+([\d,\.]+)\s+([^\d]+?)\s+([\d,\.]+)\s+(\d{4})/);
-                const kontoMatch2 = line.match(/(\d{4})\s+([^\d]+?)\s+([\d,\.]+)/);
-                
-                let accountNumber, description, amount;
-                
-                if (kontoMatch) {
-                    // DATEV Format: "Betrag Betrag Bezeichnung Betrag Kontonummer"
-                    accountNumber = kontoMatch[5];
-                    description = kontoMatch[3].trim();
-                    amount = parseGermanNumber(kontoMatch[1]);
-                } else if (kontoMatch2) {
-                    // Alternatv Format: "Kontonummer Bezeichnung Betrag"
-                    accountNumber = kontoMatch2[1];
-                    description = kontoMatch2[2].trim();
-                    amount = parseGermanNumber(kontoMatch2[3]);
-                } else {
-                    // Kein Konto-Format erkannt
-                    continue;
-                }
-                
-                // Nur Kosten-Konten (4xxx, 6xxx, 7xxx) und Beträge > 0
-                if (!accountNumber.match(/^[467]\d{3}$/) || amount <= 0) {
-                    continue;
-                }
-                
-                // Kategorisiere
-                let categorized = false;
-                for (const [category, rules] of Object.entries(categoryRules)) {
-                    for (const rule of rules) {
-                        if (rule.test(accountNumber + ' ' + description)) {
-                            costs[category].total += amount;
-                            costs[category].items.push({
-                                account: accountNumber,
-                                description: description,
-                                amount: amount
-                            });
-                            console.log(`  ✅ ${accountNumber} ${description}: ${amount.toLocaleString('de-DE')}€ → ${category}`);
-                            categorized = true;
-                            break;
-                        }
-                    }
-                    if (categorized) break;
-                }
-                
-                // Fallback: Sonstige
-                if (!categorized) {
-                    costs.sonstige.total += amount;
-                    costs.sonstige.items.push({
-                        account: accountNumber,
-                        description: description,
-                        amount: amount
-                    });
-                    console.log(`  📌 ${accountNumber} ${description}: ${amount.toLocaleString('de-DE')}€ → sonstige`);
-                }
-            }
-            
-            // Zusammenfassung
-            console.log('\n📊 === KOSTENARTEN-ZUSAMMENFASSUNG ===');
-            let totalCosts = 0;
-            for (const [key, category] of Object.entries(costs)) {
-                if (category.total > 0) {
-                    console.log(`${category.label}: ${category.total.toLocaleString('de-DE')}€ (${category.items.length} Positionen)`);
-                    totalCosts += category.total;
-                }
-            }
-            console.log(`GESAMT: ${totalCosts.toLocaleString('de-DE')}€`);
-            
-            return costs;
-        }
-
         function extractBWADataFromText(text, filename) {
             console.log('🔍 Extrahiere BWA-Daten aus Text...');
             console.log('📄 Text-Länge:', text.length, 'Zeichen');
@@ -3045,10 +2886,72 @@
                 }
             }
             
-            // ✅ EXTRAKTION ABGESCHLOSSEN - Keine Schätzungen, nur echte PDF-Zahlen!
-            console.log('📊 Extraktion abgeschlossen. Revenue:', revenue, '€, Costs:', costs, '€');
+            // **FALLBACK: Intelligente Kosten-Schätzung basierend auf Umsatz**
+            if (costs === 0 && revenue > 0) {
+                console.log('⚠️ KEINE KOSTEN GEFUNDEN - Verwende intelligente Suche');
+                
+                // Extrahiere ALLE Zahlen aus dem BWA-Text
+                const allNumberMatches = bwaText.match(/([0-9]{2}\.[0-9]{3},\d{2})/g);
+                
+                if (allNumberMatches) {
+                    const allValues = allNumberMatches
+                        .map(n => parseGermanNumber(n))
+                        .filter(n => n >= 1000 && n <= 200000) // Nur relevante Beträge
+                        .filter((v, i, arr) => arr.indexOf(v) === i); // Duplikate entfernen
+                    
+                    console.log('� Alle gefundenen Werte (1k-200k):', allValues.map(n => n.toLocaleString('de-DE')).join(', '));
+                    
+                    // Sortiere absteigend
+                    const sorted = allValues.sort((a, b) => b - a);
+                    console.log('📊 Sortiert (größte zuerst):', sorted.slice(0, 5).map(n => n.toLocaleString('de-DE')).join(', '));
+                    
+                    // Typischerweise ist die ZWEITGRÖSSTE Zahl die Kosten
+                    // (größte = Umsatz, zweitgrößte = Kosten)
+                    if (sorted.length >= 2) {
+                        // Finde die größte Zahl die NICHT der Umsatz ist (±100€ Toleranz)
+                        const costsCandidate = sorted.find(n => Math.abs(n - revenue) > 100);
+                        
+                        if (costsCandidate && costsCandidate >= 1000 && costsCandidate <= revenue * 1.5) {
+                            costs = costsCandidate;
+                            console.log('✅ 📊 Kosten gefunden (zweitgrößter Wert):', costs.toLocaleString('de-DE'), '€');
+                        } else {
+                            // Fallback: 60% vom Umsatz als Schätzung
+                            costs = Math.round(revenue * 0.6);
+                            console.log('⚠️ Keine passenden Kosten, schätze 60%:', costs.toLocaleString('de-DE'), '€');
+                        }
+                    } else {
+                        costs = Math.round(revenue * 0.6);
+                        console.log('⚠️ Nur ein Wert gefunden, schätze Kosten 60%:', costs.toLocaleString('de-DE'), '€');
+                    }
+                } else {
+                    costs = Math.round(revenue * 0.6);
+                    console.log('⚠️ Keine Zahlen gefunden, schätze Kosten 60%:', costs.toLocaleString('de-DE'), '€');
+                }
+            }
             
-            // **VALIDIERUNG - Bei Fehler Demo-Daten verwenden**
+            // Fallback: Pattern-Matching im Gesamttext (ALTER CODE - WIRD ÜBERSPRUNGEN)
+            if (revenue === 0) {
+                const revenueMatch = text.match(/Betriebseinnahmen[^\n]*\n[^\n]*\n[^\n]*?([0-9]{1,3}(?:\.[0-9]{3})*,\d{2})/i) ||
+                                     text.match(/S\s*u\s*m\s*m\s*e[^\n]*?([0-9]{2}\.[0-9]{3},\d{2})[^0-9]*100[,.]00/i);
+                if (revenueMatch) {
+                    revenue = parseGermanNumber(revenueMatch[1]);
+                    console.log('💰 Umsatz (Pattern-Match):', revenue.toLocaleString('de-DE'));
+                }
+            }
+            
+            if (costs === 0) {
+                const costMatch = text.match(/Betriebsausgaben[^\n]*\n[^\n]*\n[^\n]*?([0-9]{1,3}(?:\.[0-9]{3})*,\d{2})/i) ||
+                                  text.match(/S\s*u\s*m\s*m\s*e[^\n]*?([0-9]{2}\.[0-9]{3},\d{2})[^0-9]*(?:49|50)[,.](?:00|50)/i);
+                if (costMatch) {
+                    costs = parseGermanNumber(costMatch[1]);
+                    console.log('📊 Kosten (Pattern-Match):', costs.toLocaleString('de-DE'));
+                }
+            }
+            
+            // **ALTER FALLBACK ENTFERNT** - Wird jetzt durch intelligenten Fallback weiter oben ersetzt
+            // (Der neue Code findet die zweitgrößte Zahl = Kosten)
+            
+            // **VALIDIERUNG**
             if (revenue === 0 || costs === 0) {
                 console.log('❌ Extraktion fehlgeschlagen (Umsatz oder Kosten = 0)');
                 console.log('📊 Verwende Demo-Daten für:', filename);
@@ -3058,10 +2961,11 @@
             // Plausibilitätscheck
             if (costs > revenue * 1.5) {
                 console.log('⚠️ Kosten > 150% des Umsatzes - VERLUST-Szenario erkannt');
+                // NICHT mehr tauschen - Verluste sind legitim!
             }
             
             if (costs < revenue * 0.1) {
-                console.log('⚠️ Kosten < 10% des Umsatzes - sehr hohe Marge!');
+                console.log('⚠️ Kosten < 10% des Umsatzes - sehr hohe Marge, prüfen!');
             }
             
             const profit = revenue - costs;
@@ -3074,77 +2978,99 @@
                 margin: margin + '%' 
             });
             
-            // 🚀 ECHTE KOSTENAUFSCHLÜSSELUNG aus Summen- und Saldenliste
-            console.log('\n🚀 === EXTRAHIERE ECHTE KOSTENARTEN ===');
-            const detailedCosts = extractDetailedCostBreakdown(text);
+            // Kostenaufschlüsselung (geschätzt)
+            const costMatches = [
+                // Format: "Gesamtkosten 103.800"
+                normalizedText.match(/Gesamtkosten\s+([0-9]{1,3}(?:\.[0-9]{3})*(?:,[0-9]{2})?)/i),
+                // Format: "betriebliche Aufwendungen 103.800"
+                normalizedText.match(/betriebliche Aufwendungen\s+([0-9]{1,3}(?:\.[0-9]{3})*(?:,[0-9]{2})?)/i),
+                // Format: "Aufwendungen 103.800"
+                normalizedText.match(/Aufwendungen?\s+([0-9]{1,3}(?:\.[0-9]{3})*(?:,[0-9]{2})?)/i),
+                // Format: "Kosten 103.800"
+                normalizedText.match(/Kosten\s+([0-9]{1,3}(?:\.[0-9]{3})*(?:,[0-9]{2})?)/i)
+            ];
             
-            // Verwende ECHTE Werte statt Schätzungen!
-            const personalCosts = detailedCosts.personal.total || Math.round(costs * 0.45);
-            const rentCosts = detailedCosts.raum.total || Math.round(costs * 0.10);
-            const kfzCosts = detailedCosts.kfz.total || 0;
-            const marketingCosts = detailedCosts.marketing.total || Math.round(costs * 0.08);
-            const insuranceCosts = detailedCosts.versicherungen.total || 0;
-            const officeCosts = detailedCosts.büro.total || 0;
-            const externalCosts = detailedCosts.fremdleistung.total || 0;
-            const otherCosts = detailedCosts.sonstige.total || 0;
-            
-            // Materialkosten (falls nicht in Fremdleistung erfasst)
-            const materialCosts = externalCosts > 0 ? 0 : Math.round(costs * 0.25);
-            
-            // Validierung: Summe darf nicht größer als Gesamtkosten sein
-            let costSum = personalCosts + rentCosts + kfzCosts + marketingCosts + 
-                          insuranceCosts + officeCosts + externalCosts + materialCosts + otherCosts;
-            
-            if (costSum > costs * 1.1) {
-                // Mehr als 10% Abweichung - verwende BWA-Werte als Basis
-                console.log(`⚠️ Kostenaufschlüsselung (${costSum.toLocaleString()}€) > Gesamtkosten (${costs.toLocaleString()}€) - verwende Proportionen`);
-                const factor = costs / costSum;
-                costSum = costs;
+            for (const match of costMatches) {
+                if (match && match[1]) {
+                    const value = parseGermanNumber(match[1]);
+                    console.log('📊 Kosten gefunden:', match[0], '→', value);
+                    if (value >= 500 && value <= 100000000) {
+                        costs = value;
+                        break;
+                    }
+                }
             }
             
-            console.log(`✅ Kostenaufschlüsselung:`);
-            console.log(`  Personal: ${personalCosts.toLocaleString('de-DE')}€`);
-            console.log(`  Raum: ${rentCosts.toLocaleString('de-DE')}€`);
-            console.log(`  Kfz: ${kfzCosts.toLocaleString('de-DE')}€`);
-            console.log(`  Marketing: ${marketingCosts.toLocaleString('de-DE')}€`);
-            console.log(`  Versicherungen: ${insuranceCosts.toLocaleString('de-DE')}€`);
-            console.log(`  Büro: ${officeCosts.toLocaleString('de-DE')}€`);
-            console.log(`  Material/Fremd: ${(materialCosts + externalCosts).toLocaleString('de-DE')}€`);
-            console.log(`  Sonstige: ${otherCosts.toLocaleString('de-DE')}€`);
-            console.log(`  SUMME: ${costSum.toLocaleString('de-DE')}€`);
+            // **FALLBACK**: Wenn keine direkten Matches, suche nach Zahlen in der richtigen Größenordnung
+            if (revenue === 0 || costs === 0) {
+                console.log('⚠️ Direkte Extraktion fehlgeschlagen, verwende intelligenten Fallback');
+                
+                const allNumbers = extractNumbersFromText(text);
+                const relevantNumbers = allNumbers.filter(n => n >= 5000 && n <= 10000000);
+                
+                console.log('📊 Relevante Zahlen (5k-10M):', relevantNumbers);
+                
+                if (relevantNumbers.length >= 2) {
+                    relevantNumbers.sort((a, b) => b - a);
+                    
+                    if (revenue === 0) {
+                        revenue = relevantNumbers[0];
+                        console.log('💰 Umsatz (Fallback größte Zahl):', revenue);
+                    }
+                    if (costs === 0) {
+                        // Kosten sollten kleiner als Umsatz sein
+                        costs = relevantNumbers.find(n => n < revenue * 0.95) || relevantNumbers[1];
+                        console.log('📊 Kosten (Fallback zweitgrößte):', costs);
+                    }
+                }
+            }
+            
+            // **VALIDIERUNG**
+            if (revenue === 0 || costs === 0) {
+                console.log('❌ Extraktion fehlgeschlagen (Umsatz oder Kosten = 0)');
+                console.log('📊 Verwende Demo-Daten für:', filename);
+                return generateBWAData(filename);
+            }
+            
+            // Kostenaufschlüsselung (geschätzt)
+            const personalCosts = Math.round(costs * 0.45);
+            const materialCosts = Math.round(costs * 0.25);
+            const rentCosts = Math.round(costs * 0.10);
+            const marketingCosts = Math.round(costs * 0.08);
+            const otherCosts = costs - (personalCosts + materialCosts + rentCosts + marketingCosts);
 
-            // **Fix/Variabel Klassifizierung** (semantisch, nicht nach Schätzung!)
-            // Personal: 80% fix (Gehälter), 20% variabel (Überstunden, Prämien)
-            // Raum: 100% fix
-            // Kfz: 30% fix (Versicherung, Steuer), 70% variabel (Sprit, Wartung)
-            // Marketing: 20% fix (Grundbudget), 80% variabel
-            // Versicherungen: 100% fix
-            // Büro: 60% fix, 40% variabel
-            // Material/Fremd: 100% variabel
-            // Sonstige: 50% fix, 50% variabel
+            // **NEU: Intelligente Klassifizierung der Sonstigen Kosten**
+            console.log('🔍 Starte intelligente Klassifizierung der Sonstigen Kosten...');
+            const classifiedCosts = classifyCostItems(text);
             
-            const fixedCosts = Math.round(
-                personalCosts * 0.8 +
-                rentCosts * 1.0 +
-                kfzCosts * 0.3 +
-                marketingCosts * 0.2 +
-                insuranceCosts * 1.0 +
-                officeCosts * 0.6 +
-                otherCosts * 0.5
-            );
+            // Berechne Fix/Variabel basierend auf tatsächlich gefundenen Kosten
+            let otherFixedCosts = 0;
+            let otherVariableCosts = 0;
             
-            const variableCosts = Math.round(
-                personalCosts * 0.2 +
-                kfzCosts * 0.7 +
-                marketingCosts * 0.8 +
-                officeCosts * 0.4 +
-                (materialCosts + externalCosts) * 1.0 +
-                otherCosts * 0.5
-            );
+            if (classifiedCosts.totalIdentified > 0 && classifiedCosts.totalIdentified <= otherCosts) {
+                // Verwende die intelligente Klassifizierung
+                otherFixedCosts = classifiedCosts.fixedSum;
+                otherVariableCosts = classifiedCosts.variableSum;
+                
+                // Rest der Sonstigen Kosten (nicht identifiziert) nach 60/40 aufteilen
+                const remainingOtherCosts = otherCosts - classifiedCosts.totalIdentified;
+                otherFixedCosts += Math.round(remainingOtherCosts * 0.6);
+                otherVariableCosts += Math.round(remainingOtherCosts * 0.4);
+                
+                console.log(`✅ Intelligente Klassifizierung: ${classifiedCosts.fixedSum}€ fix + ${classifiedCosts.variableSum}€ variabel identifiziert`);
+                console.log(`📊 Rest (${remainingOtherCosts}€) → 60/40 aufgeteilt`);
+            } else {
+                // Fallback: Standardaufteilung 60/40
+                otherFixedCosts = Math.round(otherCosts * 0.6);
+                otherVariableCosts = Math.round(otherCosts * 0.4);
+                console.log(`⚠️ Keine spezifischen Kostenarten gefunden → Standard 60/40 verwendet`);
+            }
+
+            // Fixkosten vs. Variable Kosten (mit intelligenter Klassifizierung)
+            const fixedCosts = personalCosts + rentCosts + otherFixedCosts;
+            const variableCosts = materialCosts + marketingCosts + otherVariableCosts;
             
-            console.log(`\n📊 FIX/VARIABEL-AUFTEILUNG (semantisch):`);
-            console.log(`  Fixkosten: ${fixedCosts.toLocaleString('de-DE')}€ (${((fixedCosts/costs)*100).toFixed(1)}%)`);
-            console.log(`  Variable Kosten: ${variableCosts.toLocaleString('de-DE')}€ (${((variableCosts/costs)*100).toFixed(1)}%)`);
+            console.log(`📊 FINALE AUFTEILUNG: ${fixedCosts.toLocaleString()}€ fix (${((fixedCosts/costs)*100).toFixed(0)}%) + ${variableCosts.toLocaleString()}€ variabel (${((variableCosts/costs)*100).toFixed(0)}%)`);
             
             // **NEU: Zeitraum aus BWA extrahieren**
             const period = extractPeriodFromBWA(text);
@@ -3162,23 +3088,25 @@
                 year: period.year,
                 periodKey: period.periodKey, // Format: "2024-06" für eindeutige Identifikation
                 
-                // 🚀 ECHTE Kostenaufschlüsselung
+                // Kostenaufschlüsselung
                 costBreakdown: {
                     personal: personalCosts,
                     material: materialCosts,
                     rent: rentCosts,
                     marketing: marketingCosts,
-                    kfz: kfzCosts,
-                    insurance: insuranceCosts,
-                    office: officeCosts,
-                    external: externalCosts,
                     other: otherCosts
                 },
                 
-                // **NEU: Detaillierte Kostenarten mit allen Positionen**
-                detailedCosts: detailedCosts,
+                // **NEU: Detaillierte Aufschlüsselung der Sonstigen Kosten**
+                otherCostsDetail: classifiedCosts.totalIdentified > 0 ? {
+                    identified: classifiedCosts.totalIdentified,
+                    fixed: classifiedCosts.fixedSum,
+                    variable: classifiedCosts.variableSum,
+                    breakdown: classifiedCosts.detailBreakdown,
+                    unidentified: otherCosts - classifiedCosts.totalIdentified
+                } : null,
                 
-                // Fixkosten vs. Variable (semantisch berechnet!)
+                // Fixkosten vs. Variable
                 fixedCosts: fixedCosts,
                 variableCosts: variableCosts,
                 
@@ -3186,7 +3114,7 @@
                 breakEvenPoint: Math.round(fixedCosts / (parseFloat(margin) / 100)),
                 liquidityMonths: Math.round((profit * 3) / costs * 10) / 10,
                 personalCostRatio: Math.round((personalCosts / revenue) * 100),
-                materialCostRatio: Math.round(((materialCosts + externalCosts) / revenue) * 100)
+                materialCostRatio: Math.round((materialCosts / revenue) * 100)
             };
         }
 

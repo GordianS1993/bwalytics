@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>BWA Extraktion Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+    <h1>BWA Text-Extraktion Test</h1>
+    <input type="file" id="fileInput" accept=".pdf">
+    <button onclick="analyzePDF()">Analysieren</button>
+    <pre id="output" style="white-space: pre-wrap; font-family: monospace; font-size: 12px;"></pre>
+
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        async function analyzePDF() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Bitte wähle eine PDF-Datei!');
+                return;
+            }
+
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+            
+            let fullText = '';
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items.map(item => item.str).join(' ');
+                fullText += `\n=== SEITE ${i} ===\n${pageText}\n`;
+            }
+
+            document.getElementById('output').textContent = fullText;
+            
+            // Analyse
+            console.log('Voller Text:', fullText);
+            
+            // Suche nach wichtigen Begriffen
+            const keywords = [
+                'Gesamtleistung',
+                'Umsatzerlöse', 
+                'Gesamtkosten',
+                'Betriebsergebnis',
+                'Personalkosten',
+                'Materialaufwand',
+                'Rohertrag'
+            ];
+            
+            console.log('\n=== KEYWORD SUCHE ===');
+            keywords.forEach(keyword => {
+                const regex = new RegExp(keyword + '.*?([0-9.]+,\\d{2})', 'gi');
+                const matches = fullText.match(regex);
+                if (matches) {
+                    console.log(`${keyword}:`, matches);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

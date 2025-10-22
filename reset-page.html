@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BWAlytics - Passwort zurücksetzen</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 600px;
+            margin: 100px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #1e293b;
+            margin-bottom: 20px;
+        }
+        p {
+            color: #475569;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #b91c1c;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f0fdf4;
+            border: 2px solid #22c55e;
+            border-radius: 8px;
+            display: none;
+        }
+        #result.show {
+            display: block;
+        }
+        a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 18px;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔐 Passwort zurücksetzen</h1>
+    <p>Klicken Sie auf den Button, um alle verschlüsselten Daten zu löschen:</p>
+    <button onclick="resetAll()">
+        🗑️ Alle Daten löschen & Passwort zurücksetzen
+    </button>
+    <div id="result">
+        <h2>✅ Erfolgreich!</h2>
+        <p>Alle Daten wurden gelöscht.</p>
+        <a href="bwa-upload-working.html">→ Zurück zum BWA Upload</a>
+    </div>
+    
+    <script>
+        function resetAll() {
+            localStorage.clear();
+            sessionStorage.clear();
+            document.getElementById('result').classList.add('show');
+            console.log('✅ Alle Daten gelöscht!');
+        }
+    </script>
+</body>
+</html>
