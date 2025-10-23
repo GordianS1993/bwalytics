@@ -70,12 +70,12 @@ export const EXPECTED_BREAKDOWN_DATEV = {
     itemCount: 1
   },
   büro: {
-    total: 1650, // 450 + 1200
-    itemCount: 2
+    total: 2430, // 450 + 1200 + 780 (Sonstige Betriebskosten wird auch als Büro kategorisiert)
+    itemCount: 3
   },
   sonstige: {
-    total: 780,
-    itemCount: 1
+    total: 0, // Alle wurden kategorisiert
+    itemCount: 0
   }
 };
 

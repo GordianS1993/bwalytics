@@ -170,10 +170,22 @@ export function extractBWADataFromText(text) {
   }
   
   // Extrahiere Umsatz (Konto 8xxx)
+  // Format: "8400 Erlöse 0,00 95.500,00 95.500,00" oder "Konto 8400 - Umsatzerlöse: 95.500,00 EUR"
   let revenue = 0;
-  const revenueMatch = text.match(/8\d{3}\s+(?:.*?Erlöse?|Umsatz).*?([\d,.]+)/i);
-  if (revenueMatch) {
-    revenue = parseGermanNumber(revenueMatch[1]);
+  const lines = text.split('\n');
+  for (const line of lines) {
+    // Format 1: "8400 Erlöse ... Saldo"
+    const match1 = line.match(/8\d{3}\s+.*?Erlöse?.*?([\d,.]+)\s*$/i);
+    // Format 2: "Konto 8400 - Umsatzerlöse: 95.500,00"
+    const match2 = line.match(/Konto\s+8\d{3}.*?[:-]\s*(?:Umsatz|Erlöse?).*?([\d,.]+)/i);
+    
+    if (match1) {
+      revenue = parseGermanNumber(match1[1]);
+      break;
+    } else if (match2) {
+      revenue = parseGermanNumber(match2[1]);
+      break;
+    }
   }
   
   // Berechne Gewinn und Marge
