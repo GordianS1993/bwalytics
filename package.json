@@ -1,0 +1,33 @@
+{
+  "name": "bwalytics",
+  "version": "1.0.0",
+  "description": "Client-Side BWA-Analyse für Kleinunternehmer - 100% Privacy-First, keine Server",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage"
+  },
+  "keywords": [
+    "bwa",
+    "accounting",
+    "business-analytics",
+    "datev",
+    "kleinunternehmer",
+    "privacy-first"
+  ],
+  "author": "BWAlytics",
+  "license": "MIT",
+  "devDependencies": {
+    "@vitest/ui": "^1.0.0",
+    "vitest": "^1.0.0",
+    "jsdom": "^23.0.0",
+    "@vitest/coverage-v8": "^1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GordianS1993/bwalytics.git"
+  },
+  "homepage": "https://gordians1993.github.io/bwalytics/"
+}

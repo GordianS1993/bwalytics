@@ -15,6 +15,9 @@ coverage/
 # nyc test coverage
 .nyc_output
 
+# Vitest Cache
+.vitest/
+
 # Dependency directories
 node_modules/
 
