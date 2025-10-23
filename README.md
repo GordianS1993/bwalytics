@@ -1,6 +1,8 @@
 # BWAlytics - Intelligente BWA-Analyse für Kleinunternehmer
 
 [![GitHub Pages](https://img.shields.io/badge/Live-GitHub%20Pages-success)](https://gordians1993.github.io/bwalytics/)
+[![Tests](https://github.com/GordianS1993/bwalytics/actions/workflows/test.yml/badge.svg)](https://github.com/GordianS1993/bwalytics/actions/workflows/test.yml)
+[![Deploy](https://github.com/GordianS1993/bwalytics/actions/workflows/deploy.yml/badge.svg)](https://github.com/GordianS1993/bwalytics/actions/workflows/deploy.yml)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/Version-1.0.0-green.svg)](CHANGELOG.md)
 
